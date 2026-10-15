@@ -112,6 +112,22 @@ tbody tr.new{animation:rowIn .45s cubic-bezier(.2,.8,.2,1)}
 .note{font-size:12.5px;color:var(--muted);background:var(--soft);border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;margin-top:12px}
 .note b{color:var(--ink)}
 .warn{color:var(--warn)}
+.split{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 6%,var(--card)),var(--card))}
+.split-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13.5px;margin-bottom:10px}
+.split-head b{color:var(--brand);text-transform:uppercase;letter-spacing:.3px;font-size:13px}
+@media (prefers-color-scheme:dark){.split-head b{color:#cfe0ff}}
+.split-head span{color:var(--muted);font-size:12.5px}
+.split-bar{display:flex;height:26px;border-radius:8px;overflow:hidden;margin:14px 0 10px;background:var(--soft)}
+.split-bar span{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:width .7s cubic-bezier(.2,.8,.2,1);background-size:200% 100%;animation:barFlow 5s linear infinite}
+#sbRem{background-image:linear-gradient(90deg,#0d2b61,#1b3f86,#0d2b61)}
+#sbCampo{background-image:linear-gradient(90deg,#3d7be0,#7fb0ff,#3d7be0)}
+@keyframes barFlow{from{background-position:0 0}to{background-position:200% 0}}
+.split-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.split-kpi div{position:relative;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card)}
+.split-kpi small{display:block;color:var(--muted);font-size:11.5px}
+.split-kpi strong{font-size:17px;font-variant-numeric:tabular-nums}
+.split-kpi i{position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px}
+.split-kpi .rem i{background:#1b3f86} .split-kpi .cmp i{background:#3d7be0}
 .mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
 .mini div{position:relative;border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
 .mini div:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));box-shadow:var(--shadow)}
@@ -250,6 +266,23 @@ footer b{color:var(--brand)}
       <label class="f">% de imposto sobre faturamento<input type="number" id="imp" min="0" max="99" step="0.01"><small>Ex.: Lucro Presumido ≈ 16,33%</small></label>
       <label class="f">Prazo do contrato (meses)<input type="number" id="meses" min="1" step="1"></label>
     </div>
+
+    <div class="split">
+      <div class="split-head">
+        <b>Chamados e divisão entre os níveis</b>
+        <span>Defina quanto da base abre chamado e quanto disso vai para campo</span>
+      </div>
+      <div class="grid">
+        <label class="f">% de abertura de chamados (mês)<input type="number" id="pAbT" step="0.1" min="0"><small>Sobre a base. Proposta: até 5%</small></label>
+        <label class="f">% dos chamados que vão para campo (N3)<input type="number" id="pCampo" step="1" min="0" max="100"><small>O restante é resolvido no N1 + N2</small></label>
+      </div>
+      <div class="split-bar"><span id="sbRem"></span><span id="sbCampo"></span></div>
+      <div class="split-kpi">
+        <div><small>Chamados / mês</small><strong id="k_tot">–</strong></div>
+        <div class="rem"><i></i><small>N1 + N2 · resolvidos remotamente</small><strong id="k_rem">–</strong></div>
+        <div class="cmp"><i></i><small>N3 · OS de campo</small><strong id="k_campo">–</strong></div>
+      </div>
+    </div>
   </div>
 
   <nav class="tabs" role="tablist">
@@ -263,9 +296,8 @@ footer b{color:var(--brand)}
   <div class="panel" data-panel="n12">
     <div class="card">
       <h2>1. Volume de chamados</h2>
-      <p class="sub">Chamados que chegam ao NOC e ao suporte remoto (N1 + N2 juntos).</p>
+      <p class="sub">Chamados resolvidos pelo NOC e pelo suporte remoto (N1 + N2), conforme a divisão definida no bloco da base.</p>
       <div class="grid">
-        <label class="f">% de abertura de chamados (mês)<input type="number" id="pAb12" step="0.1" min="0"><small>Sobre a base. Proposta: até 5%</small></label>
         <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
       </div>
       <div class="mini" id="volBox"></div>
@@ -362,9 +394,8 @@ footer b{color:var(--brand)}
   <div class="panel" data-panel="n3" hidden>
     <div class="card">
       <h2>1. Volume e preço por OS</h2>
-      <p class="sub">Volume previsto de OS de campo e o valor que você quer receber por OS.</p>
+      <p class="sub">O volume de OS vem da divisão de chamados no bloco da base. Aqui você define o valor por OS.</p>
       <div class="grid">
-        <label class="f">% de chamados de campo (mês)<input type="number" id="pAb" step="0.1" min="0"><small>Sobre a base — cada chamado vira uma OS</small></label>
         <label class="f">Quanto quero receber por OS (R$)<input type="number" id="alvo" step="1" min="0"></label>
         <label class="f">Esse valor é
           <select id="alvoTipo"><option value="liq">Líquido (após impostos)</option><option value="bruto">Bruto (com impostos)</option></select>
@@ -405,7 +436,7 @@ footer b{color:var(--brand)}
       <p class="sub">Resultado mensal do campo quando a abertura real fica diferente da prevista.</p>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>% abertura</th><th>OS/mês</th><th>Custo total</th><th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th></tr></thead>
+          <thead><tr><th>OS sobre a base</th><th>OS/mês</th><th>Custo total</th><th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th></tr></thead>
           <tbody id="sens"></tbody>
         </table>
       </div>
@@ -473,16 +504,16 @@ const DEF = {
   tab:"n12", base:4399, imp:16.33, meses:24,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
   // N3
-  pAb:5, alvo:250, alvoTipo:"liq", terc:180,
+  pAbT:5, pCampo:20, alvo:250, alvoTipo:"liq", terc:180,
   cf3:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300}],
   // N1 + N2
-  pAb12:5, diasOp:22,
+  diasOp:22,
   fxCrit:"pct", fxModo:"fechada", fRev:68.60, setup:280000, margem12:20,
   faixas:[{n:"100%",min:100,v:54.35},{n:"80%",min:80,v:60.05},{n:"50%",min:50,v:68.60}],
   team:[{n:"Analista NOC N1 — turno manhã",v:5940},{n:"Analista NOC N1 — turno tarde",v:5940},{n:"Analista de suporte N2",v:9000},{n:"Coordenador de operação (gestão)",v:15600}],
   cf12:[{n:"Aluguel do espaço",v:3000},{n:"Água",v:150},{n:"Luz",v:600},{n:"Internet",v:400},{n:"Ferramenta de monitoramento / licenças",v:1500},{n:"Equipamentos (notebooks, depreciação)",v:800}]
 };
-const NUMS = ["base","imp","meses","pAb","alvo","terc","pAb12","diasOp","fRev","setup","margem12"];
+const NUMS = ["base","imp","meses","pAbT","pCampo","alvo","terc","diasOp","fRev","setup","margem12"];
 const SELS = ["alvoTipo","fxCrit","fxModo"];
 const clone = a => a.map(x => ({...x}));
 let tab = "n12";
@@ -670,7 +701,7 @@ function state(){
 
 // ---------- Cálculo N3 ----------
 function calcN3(base, imp){
-  const pAb = v("pAb")/100, os = base*pAb;
+  const pAb = v("pAbT")/100*Math.min(Math.max(v("pCampo"),0),100)/100, os = base*pAb;
   const alvo = v("alvo");
   const brutoOS = $("alvoTipo").value === "liq" ? alvo/(1-imp) : alvo;
   const liqOS = brutoOS*(1-imp);
@@ -751,10 +782,10 @@ function calcN12(base, imp){
 
   // Volume
   const diasOp = Math.max(1, v("diasOp"));
-  const chamados = base*v("pAb12")/100;
+  const chamados = base*v("pAbT")/100*(1 - Math.min(Math.max(v("pCampo"),0),100)/100);
   $("volBox").innerHTML = `
-    <div><small>Chamados / mês</small><strong>${n1(chamados)}</strong></div>
-    <div><small>Chamados / dia</small><strong>${n1(chamados/diasOp)}</strong></div>`;
+    <div><small>Chamados N1 + N2 / mês</small><strong>${n1(chamados)}</strong></div>
+    <div><small>Chamados N1 + N2 / dia</small><strong>${n1(chamados/diasOp)}</strong></div>`;
 
   // Custos
   const equipe = TEAM.reduce((s,t) => s + (+t.v||0), 0);
@@ -795,6 +826,14 @@ function calc(){
   const imp = Math.min(Math.max(v("imp"),0),99)/100;
   const base = Math.max(0, Math.round(v("base")));
   const meses = Math.max(1, v("meses"));
+  // Divisão de chamados
+  const totCh = base*v("pAbT")/100, fc = Math.min(Math.max(v("pCampo"),0),100)/100;
+  $("k_tot").textContent = n1(totCh);
+  $("k_rem").textContent = n1(totCh*(1-fc));
+  $("k_campo").textContent = n1(totCh*fc);
+  $("sbRem").style.width = ((1-fc)*100) + "%"; $("sbCampo").style.width = (fc*100) + "%";
+  $("sbRem").textContent = fc < .92 ? `N1 + N2 · ${pc(1-fc)}` : "";
+  $("sbCampo").textContent = fc > .08 ? `N3 · ${pc(fc)}` : "";
   const A = calcN3(base, imp);
   const B = calcN12(base, imp);
 
@@ -829,7 +868,7 @@ function calc(){
     ], A.res, A.liq, [
       linha("OS por mês", n1(A.os)), linha("Resultado por OS", brl(A.os ? A.res/A.os : NaN)),
       linha(`Contrato ${meses} meses (bruto)`, brl(A.fat*meses)), linha("Resultado no contrato", brl(A.res*meses))
-    ], `OS/mês = base × % de abertura de chamados de campo.<br>Bruto = líquido ÷ (1 − imposto).<br>Custo = OS × valor do parceiro + gastos fixos.<br>Equivalente por site = faturamento ÷ base.`);
+    ], `OS/mês = base × % de abertura × % que vai para campo.<br>Bruto = líquido ÷ (1 − imposto).<br>Custo = OS × valor do parceiro + gastos fixos.<br>Equivalente por site = faturamento ÷ base.`);
   } else if (tab === "n12") {
     resumo("Resumo mensal · N1 + N2", [
       linha("Faturamento bruto", brl(B.fat), true), linha("(−) Impostos", brl(-B.impostos)), linha("Receita líquida", brl(B.liq)),
@@ -876,7 +915,7 @@ const parseBR = t => {
 };
 const fmtLike = (x, p) => p.cur ? brl(x) : x.toLocaleString("pt-BR",{minimumFractionDigits:p.dec, maximumFractionDigits:p.dec});
 function afterCalc(){
-  document.querySelectorAll(".mini strong, .setup-out strong, #s_res, #sumLines .line span:last-child, #sumExtra .line span:last-child").forEach(el => {
+  document.querySelectorAll(".mini strong, .split-kpi strong, .setup-out strong, #s_res, #sumLines .line span:last-child, #sumExtra .line span:last-child").forEach(el => {
     const novo = el.textContent;
     const antigo = el.dataset.v;
     el.dataset.v = novo;
@@ -898,7 +937,7 @@ function afterCalc(){
 }
 function contagemInicial(){
   if (REDUZ) return;
-  document.querySelectorAll(".mini strong, .setup-out strong, #s_res").forEach(el => {
+  document.querySelectorAll(".mini strong, .split-kpi strong, .setup-out strong, #s_res").forEach(el => {
     const p = parseBR(el.textContent); if (!p) return;
     const alvo = el.textContent, fim = p.neg ? -p.n : p.n, t0 = performance.now(), dur = 1100;
     const passo = now => {
