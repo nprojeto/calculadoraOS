@@ -170,7 +170,6 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 
     <div class="mini">
       <div><small>OS de campo / mês</small><strong id="o_os">–</strong></div>
-      <div><small>OS de campo / dia</small><strong id="o_osd">–</strong></div>
       <div><small>Preço bruto por OS</small><strong id="o_bos">–</strong></div>
       <div><small>Líquido por OS</small><strong id="o_los">–</strong></div>
       <div><small>Equivalente por site/mês</small><strong id="o_site">–</strong></div>
@@ -179,30 +178,14 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     <div class="note" id="n3note"></div>
   </div>
 
-  <!-- 3. EQUIPE -->
+  <!-- 3. CUSTOS -->
   <div class="card">
-    <h2>3. Equipe, estrutura e custos <span class="tag">Custos</span></h2>
-    <p class="sub">Monte os cargos e a capacidade de cada um. A equipe é dimensionada a partir da base, do % de chamados e dos estados atendidos.</p>
+    <h2>3. Custos <span class="tag">Terceirizado</span></h2>
+    <p class="sub">O atendimento é feito por parceiro. Informe quanto você paga por OS e os gastos fixos da operação.</p>
 
     <div class="grid">
-      <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
-      <label class="f">Dias trabalhados por pessoa/mês<input type="number" id="diasTrab" step="1" min="1"><small>Escala 5x2 ≈ 22</small></label>
+      <label class="f">Valor pago ao parceiro por OS (R$)<input type="number" id="terc" step="1" min="0"><small>O que o parceiro cobra para atender cada ordem</small></label>
       <label class="f">Margem desejada (%)<input type="number" id="margem" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
-    </div>
-
-    <h3 class="h3">Cargos</h3>
-    <div id="teamList"></div>
-    <div class="row" style="margin:10px 0 0">
-      <button type="button" class="btn" id="teamAdd">+ Adicionar cargo</button>
-      <button type="button" class="btn ghost" id="teamReset">Restaurar equipe padrão</button>
-    </div>
-
-    <h3 class="h3">Custo variável por OS</h3>
-    <div class="grid">
-      <label class="f">Pagamento a terceiro por OS (R$)<input type="number" id="terc" step="1" min="0"><small>Use quando a visita for terceirizada; 0 se for equipe própria</small></label>
-      <label class="f">Km médio por visita (ida + volta)<input type="number" id="km" step="1" min="0"></label>
-      <label class="f">Custo por km (R$)<input type="number" id="rkm" step="0.01" min="0"><small>Combustível, desgaste, reembolso</small></label>
-      <label class="f">Outros por OS (R$)<input type="number" id="outros" step="1" min="0"><small>Pedágio, alimentação, estacionamento…</small></label>
     </div>
 
     <h3 class="h3">Gastos fixos mensais</h3>
@@ -215,17 +198,17 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     </div>
     <div class="row" style="margin:10px 0 0">
       <button type="button" class="btn" id="cfAdd">+ Adicionar gasto</button>
+      <button type="button" class="btn ghost" id="cfReset">Restaurar gastos padrão</button>
     </div>
   </div>
 
   <!-- 4. QUANTO COBRAR -->
   <div class="card">
     <h2>4. Quanto cobrar <span class="tag">Referência</span></h2>
-    <p class="sub">Custo total da operação de campo e o preço necessário para cobrir esse custo, os impostos e a margem desejada.</p>
+    <p class="sub">Custo total (parceiro + gastos fixos) e o preço necessário para cobrir esse custo, os impostos e a margem desejada.</p>
     <div class="mini" style="margin-top:0">
-      <div><small>Pessoal</small><strong id="r_pes">–</strong></div>
+      <div><small>Parceiro (OS × valor/OS)</small><strong id="r_var">–</strong></div>
       <div><small>Gastos fixos</small><strong id="r_cf">–</strong></div>
-      <div><small>Variável (OS × custo/OS)</small><strong id="r_var">–</strong></div>
       <div><small>Custo total / mês</small><strong id="r_tot">–</strong></div>
       <div><small>Custo por OS</small><strong id="r_cos">–</strong></div>
       <div><small>Custo por site/mês</small><strong id="r_csite">–</strong></div>
@@ -250,12 +233,12 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
   <!-- 5. SENSIBILIDADE -->
   <div class="card">
     <h2>5. E se o volume de chamados variar?</h2>
-    <p class="sub">Resultado mensal quando a abertura real fica diferente da prevista. A equipe é redimensionada para cada volume.</p>
+    <p class="sub">Resultado mensal quando a abertura real fica diferente da prevista.</p>
     <div class="tablewrap">
       <table>
         <thead>
           <tr>
-            <th>% abertura</th><th>OS/mês</th><th>Pessoas</th><th>Custo total</th>
+            <th>% abertura</th><th>OS/mês</th><th>Custo total</th>
             <th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th>
           </tr>
         </thead>
@@ -275,15 +258,13 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       <div class="line total"><span>Faturamento bruto</span><span id="s_bruto">–</span></div>
       <div class="line"><span>(−) Impostos</span><span id="s_imp">–</span></div>
       <div class="line"><span>Receita líquida</span><span id="s_liq">–</span></div>
-      <div class="line"><span>(−) Pessoal</span><span id="s_pes">–</span></div>
+      <div class="line"><span>(−) Parceiro</span><span id="s_var">–</span></div>
       <div class="line"><span>(−) Gastos fixos</span><span id="s_cf">–</span></div>
-      <div class="line"><span>(−) Variável por OS</span><span id="s_var">–</span></div>
       <div class="sep"></div>
       <div class="lbl">Resultado mensal</div>
       <div class="big" id="s_res">–</div>
       <div id="s_badge" style="margin-top:6px"></div>
       <div class="sep"></div>
-      <div class="line"><span>Pessoas na equipe</span><span id="s_pessoas">–</span></div>
       <div class="line"><span>Resultado por OS</span><span id="s_resOS">–</span></div>
       <div class="line"><span id="s_ctlbl">Contrato</span><span id="s_ct">–</span></div>
       <div class="line"><span>Resultado no contrato</span><span id="s_ctres">–</span></div>
@@ -292,7 +273,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       <b style="color:var(--ink)">Como os cálculos funcionam</b><br>
       OS/mês = base × % de abertura de chamados de campo.<br>
       Bruto = líquido ÷ (1 − imposto).<br>
-      Custo total = pessoal + gastos fixos + OS × custo variável.<br>
+      Custo total = OS × valor do parceiro + gastos fixos.<br>
       Preço sugerido = custo ÷ (1 − imposto) ÷ (1 − margem).<br>
       Equivalente por site = faturamento mensal ÷ base.
     </div>
@@ -312,22 +293,12 @@ let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
   base:4399, imp:16.33, meses:24,
   pAb:5, alvo:250, alvoTipo:"liq",
-  diasOp:22, diasTrab:22, margem:20,
-  terc:0, km:40, rkm:1.5, outros:20,
+  margem:20, terc:180,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
-  team:[
-    {nome:"Técnico de campo", crit:"uf", cap:1, carga:8, cob:0, min:0, sal:3000, enc:80, ben:900,
-     atrib:"Atendimento presencial nas escolas: troca de equipamentos, reconfiguração local, testes de conectividade e registro da OS com evidências."},
-    {nome:"Coordenador de campo", crit:"fixo", cap:0, carga:8, cob:0, min:1, sal:6000, enc:80, ben:1000,
-     atrib:"Agenda e roteirização das visitas, acompanhamento de SLA, controle de equipamentos em trânsito e relatórios ao cliente."}
-  ],
-  cf:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300},{n:"Celulares e chips dos técnicos",v:900},{n:"Ferramentas e EPIs",v:600}]
+  cf:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300}]
 };
-const NUMS = ["base","imp","meses","pAb","alvo","diasOp","diasTrab","margem","terc","km","rkm","outros"];
+const NUMS = ["base","imp","meses","pAb","alvo","margem","terc"];
 const SELS = ["alvoTipo"];
-const CRITS = {os:"OS de campo/dia", uf:"Pessoas por estado", sites:"Sites da base", fixo:"Quantidade fixa"};
-const CAPLBL = {os:"OS/dia por pessoa", uf:"Pessoas por estado", sites:"Sites por pessoa", fixo:"—"};
-let TEAM = DEF.team.map(t => ({...t}));
 let CF = DEF.cf.map(c => ({...c}));
 
 const $ = id => document.getElementById(id);
@@ -421,45 +392,7 @@ $("btnModelo").addEventListener("click", () => {
   a.download = "modelo-base.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
-// ---------- Equipe ----------
-const opts = (obj, sel) => Object.entries(obj).map(([k,l]) => `<option value="${k}" ${k===sel?"selected":""}>${l}</option>`).join("");
-function renderTeam(){
-  $("teamList").innerHTML = TEAM.map((t,i) => `<div class="cargo" data-i="${i}">
-    <div class="cargo-top">
-      <input data-k="nome" value="${esc(t.nome)}" placeholder="Nome do cargo">
-      <button type="button" class="del" title="Remover cargo">×</button>
-    </div>
-    <div class="grid">
-      <label class="f">Dimensionar por<select data-k="crit">${opts(CRITS, t.crit)}</select></label>
-      <label class="f">${CAPLBL[t.crit]}<input type="number" data-k="cap" step="any" min="0" value="${t.cap}" ${t.crit==="fixo"?"disabled":""}></label>
-      <label class="f">Carga horária (h/dia)<input type="number" data-k="carga" step="0.5" min="0" value="${t.carga}"></label>
-      <label class="f">Cobertura exigida (h/dia)<input type="number" data-k="cob" step="1" min="0" max="24" value="${t.cob}" ${t.crit==="fixo"?"disabled":""}></label>
-      <label class="f">${t.crit==="fixo"?"Quantidade":"Quantidade mínima"}<input type="number" data-k="min" step="1" min="0" value="${t.min}"></label>
-      <label class="f">Salário (R$)<input type="number" data-k="sal" step="100" min="0" value="${t.sal}"></label>
-      <label class="f">Encargos (%)<input type="number" data-k="enc" step="1" min="0" value="${t.enc}"></label>
-      <label class="f">Benefícios (R$/mês)<input type="number" data-k="ben" step="50" min="0" value="${t.ben}"></label>
-    </div>
-    <textarea data-k="atrib" rows="2" placeholder="O que esse cargo faz">${esc(t.atrib||"")}</textarea>
-    <div class="cargo-res"></div>
-  </div>`).join("");
-  $("teamList").querySelectorAll(".cargo").forEach(card => {
-    const i = +card.dataset.i;
-    card.querySelectorAll("[data-k]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
-      const k = el.dataset.k;
-      TEAM[i][k] = (k === "nome" || k === "atrib" || k === "crit") ? el.value : (parseFloat(el.value) || 0);
-      if (el.tagName === "SELECT") renderTeam();
-      calc();
-    }));
-    card.querySelector(".del").addEventListener("click", () => { TEAM.splice(i,1); renderTeam(); calc(); });
-  });
-}
-$("teamAdd").addEventListener("click", () => {
-  TEAM.push({nome:"Novo cargo", crit:"os", cap:3, carga:8, cob:0, min:1, sal:3000, enc:80, ben:900, atrib:""});
-  renderTeam(); calc();
-  const c = $("teamList").lastElementChild; c.scrollIntoView({behavior:"smooth", block:"center"}); c.querySelector("[data-k=nome]").select();
-});
-$("teamReset").addEventListener("click", () => { TEAM = DEF.team.map(t => ({...t})); CF = DEF.cf.map(c => ({...c})); renderTeam(); renderCF(); calc(); });
-
+// ---------- Gastos fixos ----------
 function renderCF(){
   $("cfBody").innerHTML = CF.map((c,i) => `<tr data-i="${i}">
     <td><input class="nm" data-k="n" value="${esc(c.n)}"></td>
@@ -471,49 +404,21 @@ function renderCF(){
     tr.querySelector(".del").addEventListener("click", () => { CF.splice(i,1); renderCF(); calc(); });
   });
 }
+$("cfReset").addEventListener("click", () => { CF = DEF.cf.map(c => ({...c})); renderCF(); calc(); });
 $("cfAdd").addEventListener("click", () => { CF.push({n:"Novo gasto", v:0}); renderCF(); calc(); $("cfBody").querySelector("tr:last-child .nm").select(); });
-
-// Dimensiona a equipe para um volume de OS/mês
-function dimensionar(osMes, base, nEstados){
-  const diasOp = Math.max(1, v("diasOp")), diasTrab = Math.max(1, v("diasTrab"));
-  let pessoas = 0, custo = 0;
-  const linhas = TEAM.map(t => {
-    let q, det = [];
-    if (t.crit === "fixo") { q = Math.max(0, Math.round(t.min||0)); det.push("quantidade fixa"); }
-    else {
-      let qVol = 0, qCob = 0;
-      if (t.crit === "uf") { qVol = Math.ceil(nEstados*(t.cap||0) - 1e-9); det.push(`${nEstados} estados × ${n1(t.cap)} ⇒ ${qVol}`); }
-      else if (t.crit === "sites") { if (t.cap > 0) { qVol = Math.ceil(base/t.cap - 1e-9); det.push(`${n0(base)} sites ÷ ${n0(t.cap)} ⇒ ${qVol}`); } }
-      else if (t.cap > 0) { qVol = Math.ceil(osMes/(t.cap*diasTrab) - 1e-9); det.push(`${n1(osMes/diasOp)} OS/dia ÷ ${n1(t.cap)} ⇒ ${qVol}`); }
-      if (t.cob > 0 && t.carga > 0) { qCob = Math.ceil(t.cob*diasOp/(t.carga*diasTrab) - 1e-9); det.push(`cobertura ${n1(t.cob)}h/dia ⇒ ${qCob}`); }
-      if (t.min > 0) det.push(`mínimo ${n0(t.min)}`);
-      q = Math.max(qVol, qCob, Math.round(t.min||0));
-      if (q > 0 && (t.crit === "uf" || t.crit === "os") && t.cap > 0 && t.crit === "os") det.push(`ocupação ${pc(osMes/(q*t.cap*diasTrab))}`);
-      if (q > 0 && t.crit === "uf") det.push(`≈ ${n1(osMes/q)} OS/mês por pessoa`);
-    }
-    const unit = (t.sal||0)*(1+(t.enc||0)/100) + (t.ben||0);
-    pessoas += q; custo += q*unit;
-    return {q, unit, tot:q*unit, det};
-  });
-  return {pessoas, custo, linhas};
-}
-
-// ---------- Modo ----------
-
 
 function load(st){
   NUMS.forEach(k => $(k).value = st[k]);
   SELS.forEach(k => $(k).value = st[k]);
   if (Array.isArray(st.ufData) && st.ufData.length) UFS = st.ufData.map(u => [String(u[0]), +u[1]||0]);
   renderUFs(st.ufs || []);
-  TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t, crit: CRITS[t.crit] ? t.crit : "os"}));
   CF = (Array.isArray(st.cf) ? st.cf : DEF.cf).map(c => ({n:String(c.n??""), v:+c.v||0}));
-  renderTeam(); renderCF();
+  renderCF();
 }
 function state(){
   const st = {}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
   st.ufs = [...$("ufs").querySelectorAll("[data-i]")].filter(c=>c.checked).map(c=>UFS[+c.dataset.i][0]);
-  st.ufData = UFS; st.team = TEAM; st.cf = CF;
+  st.ufData = UFS; st.cf = CF;
   return st;
 }
 
@@ -524,8 +429,6 @@ function calc(){
   const imp = Math.min(Math.max(v("imp"),0),99)/100;
   const base = Math.max(0, Math.round(v("base")));
   const meses = Math.max(1, v("meses"));
-  const diasOp = Math.max(1, v("diasOp"));
-  const nEstados = [...$("ufs").querySelectorAll("[data-i]")].filter(c => c.checked && UFS[+c.dataset.i][1] > 0).length;
 
   // ---------- Volume e preço ----------
   const pAb = v("pAb")/100;
@@ -537,30 +440,22 @@ function calc(){
   const vSite = base ? fat/base : 0;
 
   $("o_os").textContent = n1(os);
-  $("o_osd").textContent = n1(os/diasOp);
   $("o_bos").textContent = brl(brutoOS);
   $("o_los").textContent = brl(liqOS);
   $("o_site").textContent = brl(vSite);
   $("o_fat").textContent = brl(fat);
   $("n3note").innerHTML = `${n1(os)} OS/mês × ${brl(brutoOS)} = <b>${brl(fat)}</b> por mês (${brl(liqOS)} líquido por OS). Diluído na base, equivale a <b>${brl(vSite)}</b> por site/mês.`;
 
-  // ---------- Equipe e custos ----------
-  const D = dimensionar(os, base, nEstados);
-  const cards = $("teamList").querySelectorAll(".cargo");
-  D.linhas.forEach((l,i) => {
-    if (cards[i]) cards[i].querySelector(".cargo-res").innerHTML =
-      `<b>${l.q} ${l.q===1?"pessoa":"pessoas"}</b><b>${brl(l.tot)}/mês</b><span>${brl(l.unit)} por pessoa (salário + encargos + benefícios) · ${l.det.join(" · ")}</span>`;
-  });
+  // ---------- Custos ----------
   const cfTot = CF.reduce((s,c) => s + (+c.v||0), 0);
   $("cfTotal").textContent = brl(cfTot);
-  const varU = v("terc") + v("km")*v("rkm") + v("outros");
+  const varU = v("terc");
   const varTot = os*varU;
-  const custoTot = D.custo + cfTot + varTot;
+  const custoTot = cfTot + varTot;
   const custoOS = os > 0 ? custoTot/os : NaN;
   const margem = Math.min(Math.max(v("margem"),0),95)/100;
   const minF = c => c/(1-imp), sugF = c => c/((1-imp)*(1-margem));
 
-  $("r_pes").textContent = brl(D.custo);
   $("r_cf").textContent = brl(cfTot);
   $("r_var").textContent = `${brl(varTot)}`;
   $("r_tot").textContent = brl(custoTot);
@@ -581,32 +476,30 @@ function calc(){
   const cobre = fat >= minF(custoTot) - 0.005;
   $("p_status").innerHTML = os > 0 ? (cobre ? `<span class="badge ok">Seu preço cobre o custo</span>` : `<span class="badge bad">Seu preço está abaixo do custo</span>`) : "";
   $("refNote").innerHTML = os > 0
-    ? `A equipe tem <b>${D.pessoas} pessoas</b> para ${n1(os)} OS/mês em ${nEstados} estado(s). O custo fixo (pessoal + estrutura) de ${brl(D.custo + cfTot)} é ${pc((D.custo+cfTot)/custoTot)} do total — quanto menor o volume de OS, maior o custo de cada uma. ` +
-      (D.pessoas > 0 && os/Math.max(1,D.pessoas) < 10 ? `<span class="warn">Volume baixo por pessoa (${n1(os/D.pessoas)} OS/mês): considere terceirizar parte dos estados (campo “Pagamento a terceiro por OS”).</span>` : "")
+    ? `Cada OS custa ${brl(varU)} do parceiro + ${brl(cfTot/os)} de gastos fixos rateados = <b>${brl(custoOS)}</b>. Seu lucro bruto por OS antes dos fixos é ${brl(liqOS - varU)} (${brl(liqOS)} líquido − ${brl(varU)} do parceiro). ` +
+      (liqOS - varU > 0 ? `Os gastos fixos se pagam a partir de <b>${n1(cfTot/(liqOS - varU))} OS/mês</b>.` : `<span class="warn">O líquido por OS não cobre nem o valor do parceiro.</span>`)
     : `Sem OS previstas — ajuste a base ou o % de abertura.`;
 
   // ---------- Sensibilidade ----------
   const mults = [0.25,0.5,0.75,1,1.25,1.5,2,3];
   $("sens").innerHTML = mults.map(m => {
     const osR = os*m;
-    const Dr = dimensionar(osR, base, nEstados);
-    const cR = Dr.custo + cfTot + osR*varU;
+    const cR = cfTot + osR*varU;
     const lOS = osR*liqOS, rOS = lOS - cR;
     return `<tr class="${m===1?"hl":""}">
       <td>${(pAb*m*100).toLocaleString("pt-BR",{maximumFractionDigits:2})}%${m===1?" (previsto)":""}</td>
-      <td>${n1(osR)}</td><td>${Dr.pessoas}</td><td>${brl(cR)}</td>
+      <td>${n1(osR)}</td><td>${brl(cR)}</td>
       <td>${brl(lOS)}</td><td>${osR?brl(cR/osR):"–"}</td><td class="${rOS<0?"neg":"pos"}">${brl(rOS)}</td>
     </tr>`;
   }).join("");
-  $("sensnote").innerHTML = `A receita acompanha o volume de OS, mas o custo da equipe e da estrutura continua — com volume baixo, cada OS fica mais cara e o resultado pode virar prejuízo.`;
+  $("sensnote").innerHTML = `A receita acompanha o volume de OS, mas os gastos fixos continuam — com volume baixo, cada OS fica mais cara e o resultado pode virar prejuízo.`;
 
   // ---------- Resumo ----------
   const impostos = fat*imp, liq = fat - impostos;
-  const res = liq - D.custo - cfTot - varTot;
+  const res = liq - cfTot - varTot;
   $("s_bruto").textContent = brl(fat);
   $("s_imp").textContent = brl(-impostos);
   $("s_liq").textContent = brl(liq);
-  $("s_pes").textContent = brl(-D.custo);
   $("s_cf").textContent = brl(-cfTot);
   $("s_var").textContent = brl(-varTot);
   $("s_res").textContent = brl(res);
@@ -614,7 +507,6 @@ function calc(){
   const mg = liq ? res/liq : 0;
   $("s_badge").innerHTML = res < 0 ? `<span class="badge bad">Prejuízo</span>` :
     `<span class="badge ${mg<.15?"warn":"ok"}">Margem ${pc(mg)} sobre a receita líquida</span>`;
-  $("s_pessoas").textContent = D.pessoas;
   $("s_resOS").textContent = brl(os ? res/os : NaN);
   $("s_ctlbl").textContent = `Contrato ${meses} meses (bruto)`;
   $("s_ct").textContent = brl(fat*meses);
