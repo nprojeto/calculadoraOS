@@ -150,13 +150,101 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
   </div>
 
   <nav class="tabs" role="tablist">
-    <button type="button" data-tab="n3">N3 · Campo</button>
     <button type="button" data-tab="n12">N1 + N2 · NOC e remoto</button>
+    <button type="button" data-tab="n3">N3 · Campo</button>
     <button type="button" data-tab="tot">Consolidado</button>
   </nav>
 
+  <!-- ===================== ABA N1 + N2 ===================== -->
+  <div class="panel" data-panel="n12">
+    <div class="card">
+      <h2>1. Volume de chamados</h2>
+      <p class="sub">Chamados que chegam ao NOC e ao suporte remoto (N1 + N2 juntos).</p>
+      <div class="grid">
+        <label class="f">% de abertura de chamados (mês)<input type="number" id="pAb12" step="0.1" min="0"><small>Sobre a base. Proposta: até 5%</small></label>
+        <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
+      </div>
+      <div class="mini" id="volBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. Preço por site</h2>
+      <p class="sub">A base que você subiu (todos os estados da planilha) é a referência de 100%. Desmarcar estados reduz a base atendida e pode mudar a faixa.</p>
+      <div class="grid" style="margin-bottom:12px">
+        <label class="f">Faixas definidas por
+          <select id="fxCrit"><option value="pct">% da base de referência</option><option value="qtd">Quantidade de sites</option></select>
+        </label>
+        <label class="f">Forma de cobrança
+          <select id="fxModo"><option value="fechada">Faixa fechada — todos os sites no valor da faixa</option><option value="progressiva">Progressiva — cada faixa cobra só os sites dentro dela</option></select>
+        </label>
+      </div>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Nome</th><th id="fxColMin">A partir de (%)</th><th>Intervalo (sites)</th><th>R$ / site / mês</th><th></th></tr></thead>
+          <tbody id="fxBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 14px">
+        <button type="button" class="btn" id="fxAdd">+ Adicionar faixa</button>
+        <button type="button" class="btn ghost" id="fxReset">Restaurar faixas da proposta</button>
+      </div>
+      <div class="grid">
+        <label class="f">Abaixo da menor faixa (R$/site)<input type="number" id="fRev" step="0.01" min="0"><small>Revisão comercial — valor a negociar</small></label>
+        <label class="f">Setup (R$, valor único)<input type="number" id="setup" step="100" min="0"></label>
+      </div>
+      <div class="mini">
+        <div><small>Base de referência (100%)</small><strong id="o_ref">–</strong></div>
+        <div><small>Base atendida</small><strong id="o_pct">–</strong></div>
+        <div><small>Faixa aplicada</small><strong id="o_faixa">–</strong></div>
+        <div><small>Valor médio por site</small><strong id="o_vsite">–</strong></div>
+        <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_m12">–</strong></div>
+      </div>
+      <div class="note" id="n12note"></div>
+    </div>
+
+    <div class="card">
+      <h2>3. Equipe</h2>
+      <p class="sub">Uma linha por função. Indique na descrição se é N1, N2 ou gestão.</p>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Função</th><th>Valor / mês (R$)</th><th></th></tr></thead>
+          <tbody id="teamBody"></tbody>
+          <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="teamTotal">–</b></td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 0">
+        <button type="button" class="btn" id="teamAdd">+ Adicionar função</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. Gastos fixos e custo da operação</h2>
+      <p class="sub">Estrutura do NOC e referência de preço mínimo por site.</p>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Item</th><th>R$ / mês</th><th></th></tr></thead>
+          <tbody id="cf12Body"></tbody>
+          <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="cf12Total">–</b></td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 14px">
+        <button type="button" class="btn" id="cf12Add">+ Adicionar gasto</button>
+      </div>
+      <div class="grid" style="margin-bottom:12px">
+        <label class="f">Margem desejada (%)<input type="number" id="margem12" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>Equipe</th><th>Gastos fixos</th><th>Custo total/mês</th><th>Custo por site</th><th>Preço mínimo/site</th><th>Preço sugerido/site</th></tr></thead>
+          <tbody id="teamRes"></tbody>
+        </table>
+      </div>
+      <div class="note" id="teamNote"></div>
+    </div>
+  </div>
+
   <!-- ===================== ABA N3 ===================== -->
-  <div class="panel" data-panel="n3">
+  <div class="panel" data-panel="n3" hidden>
     <div class="card">
       <h2>1. Volume e preço por OS</h2>
       <p class="sub">Volume previsto de OS de campo e o valor que você quer receber por OS.</p>
@@ -206,93 +294,6 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
           <tbody id="sens"></tbody>
         </table>
       </div>
-    </div>
-  </div>
-
-  <!-- ===================== ABA N1 + N2 ===================== -->
-  <div class="panel" data-panel="n12" hidden>
-    <div class="card">
-      <h2>1. Volume de chamados</h2>
-      <p class="sub">Chamados que chegam ao NOC (N1) e quantos sobem para o suporte remoto (N2).</p>
-      <div class="grid">
-        <label class="f">% de abertura de chamados (mês)<input type="number" id="pAb12" step="0.1" min="0"><small>Sobre a base. Proposta: até 5%</small></label>
-        <label class="f">% escalados ao N2<input type="number" id="pN2" step="1" min="0" max="100"><small>O restante é resolvido no N1</small></label>
-        <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
-        <label class="f">Dias trabalhados por pessoa/mês<input type="number" id="diasTrab" step="1" min="1"><small>Escala 5x2 ≈ 22</small></label>
-      </div>
-      <div class="mini" id="volBox"></div>
-    </div>
-
-    <div class="card">
-      <h2>2. Preço por site</h2>
-      <p class="sub">Valor mensal por site conforme a faixa em que a base se enquadra. Monte as faixas que quiser trabalhar.</p>
-      <div class="grid" style="margin-bottom:12px">
-        <label class="f">Base de referência (100%)<input type="number" id="baseRef" min="1" step="1"></label>
-        <label class="f">Faixas definidas por
-          <select id="fxCrit"><option value="pct">% da base de referência</option><option value="qtd">Quantidade de sites</option></select>
-        </label>
-        <label class="f">Forma de cobrança
-          <select id="fxModo"><option value="fechada">Faixa fechada — todos os sites no valor da faixa</option><option value="progressiva">Progressiva — cada faixa cobra só os sites dentro dela</option></select>
-        </label>
-      </div>
-      <div class="tablewrap">
-        <table class="fx">
-          <thead><tr><th>Nome</th><th id="fxColMin">A partir de (%)</th><th>Intervalo (sites)</th><th>R$ / site / mês</th><th></th></tr></thead>
-          <tbody id="fxBody"></tbody>
-        </table>
-      </div>
-      <div class="row" style="margin:10px 0 14px">
-        <button type="button" class="btn" id="fxAdd">+ Adicionar faixa</button>
-        <button type="button" class="btn ghost" id="fxReset">Restaurar faixas da proposta</button>
-      </div>
-      <div class="grid">
-        <label class="f">Abaixo da menor faixa (R$/site)<input type="number" id="fRev" step="0.01" min="0"><small>Revisão comercial — valor a negociar</small></label>
-        <label class="f">Sites acima da referência (R$/site)<input type="number" id="exc" step="0.01" min="0"><small>Só na faixa fechada. 0 = usa o valor da faixa</small></label>
-        <label class="f">Setup (R$, valor único)<input type="number" id="setup" step="100" min="0"></label>
-        <label class="f">% do valor atribuído ao N1<input type="number" id="n1Pct" step="1" min="0" max="100"><small>Restante é N2 (para separar no consolidado)</small></label>
-      </div>
-      <div class="mini">
-        <div><small>% da base de referência</small><strong id="o_pct">–</strong></div>
-        <div><small>Faixa aplicada</small><strong id="o_faixa">–</strong></div>
-        <div><small>Valor médio por site</small><strong id="o_vsite">–</strong></div>
-        <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_m12">–</strong></div>
-      </div>
-      <div class="note" id="n12note"></div>
-    </div>
-
-    <div class="card">
-      <h2>3. Equipe</h2>
-      <p class="sub">Cargos, capacidade e salários. A quantidade de pessoas é calculada a partir do volume de chamados e da cobertura de horário.</p>
-      <div id="teamList"></div>
-      <div class="row" style="margin:10px 0 0">
-        <button type="button" class="btn" id="teamAdd">+ Adicionar cargo</button>
-        <button type="button" class="btn ghost" id="teamReset">Restaurar equipe padrão</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>4. Gastos fixos e custo da operação</h2>
-      <p class="sub">Estrutura do NOC e referência de preço mínimo por site.</p>
-      <div class="tablewrap">
-        <table class="fx">
-          <thead><tr><th>Item</th><th>R$ / mês</th><th></th></tr></thead>
-          <tbody id="cf12Body"></tbody>
-          <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="cf12Total">–</b></td><td></td></tr></tfoot>
-        </table>
-      </div>
-      <div class="row" style="margin:10px 0 14px">
-        <button type="button" class="btn" id="cf12Add">+ Adicionar gasto</button>
-      </div>
-      <div class="grid" style="margin-bottom:12px">
-        <label class="f">Margem desejada (%)<input type="number" id="margem12" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
-      </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Nível</th><th>Pessoas</th><th>Pessoal</th><th>Rateio gestão + estrutura</th><th>Custo total/mês</th><th>Custo por site</th><th>Preço mínimo/site</th><th>Preço sugerido/site</th></tr></thead>
-          <tbody id="teamRes"></tbody>
-        </table>
-      </div>
-      <div class="note" id="teamNote"></div>
     </div>
   </div>
 
@@ -354,32 +355,22 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 const UFS_PROPOSTA = [["AM",208],["BA",306],["CE",30],["ES",532],["MG",2195],["PA",238],["PI",30],["RJ",601],["SP",259]];
 let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
-  tab:"n3", base:4399, imp:16.33, meses:24,
+  tab:"n12", base:4399, imp:16.33, meses:24,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
   // N3
   pAb:5, alvo:250, alvoTipo:"liq", terc:180,
   cf3:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300}],
   // N1 + N2
-  pAb12:5, pN2:40, diasOp:22, diasTrab:22,
-  baseRef:4399, fxCrit:"pct", fxModo:"fechada", fRev:68.60, exc:57.00, setup:280000, n1Pct:50, margem12:20,
+  pAb12:5, diasOp:22,
+  fxCrit:"pct", fxModo:"fechada", fRev:68.60, setup:280000, margem12:20,
   faixas:[{n:"100%",min:100,v:54.35},{n:"80%",min:80,v:60.05},{n:"50%",min:50,v:68.60}],
-  team:[
-    {nome:"Analista NOC N1", nivel:"N1", crit:"ch1", cap:40, carga:8, cob:12, min:0, sal:2800, enc:80, ben:900,
-     atrib:"Monitoramento contínuo dos equipamentos, detecção de falhas, abertura proativa de chamados, triagem, classificação e registro por INEP."},
-    {nome:"Analista de suporte N2", nivel:"N2", crit:"ch2", cap:12, carga:8, cob:8, min:0, sal:4500, enc:80, ben:900,
-     atrib:"Diagnóstico e resolução remota dos incidentes escalados, ajustes de configuração em roteadores, controladoras, APs e switches, encaminhamento para campo."},
-    {nome:"Coordenador de operação", nivel:"G", crit:"fixo", cap:0, carga:8, cob:0, min:1, sal:8000, enc:80, ben:1200,
-     atrib:"Gestão da equipe, escalas, indicadores e SLA, relacionamento com o cliente e relatórios mensais."}
-  ],
+  team:[{n:"Analista NOC N1 — turno manhã",v:5940},{n:"Analista NOC N1 — turno tarde",v:5940},{n:"Analista de suporte N2",v:9000},{n:"Coordenador de operação (gestão)",v:15600}],
   cf12:[{n:"Aluguel do espaço",v:3000},{n:"Água",v:150},{n:"Luz",v:600},{n:"Internet",v:400},{n:"Ferramenta de monitoramento / licenças",v:1500},{n:"Equipamentos (notebooks, depreciação)",v:800}]
 };
-const NUMS = ["base","imp","meses","pAb","alvo","terc","pAb12","pN2","diasOp","diasTrab","baseRef","fRev","exc","setup","n1Pct","margem12"];
+const NUMS = ["base","imp","meses","pAb","alvo","terc","pAb12","diasOp","fRev","setup","margem12"];
 const SELS = ["alvoTipo","fxCrit","fxModo"];
-const NIVEIS = {N1:"N1 — NOC", N2:"N2 — Suporte remoto", G:"Gestão / apoio"};
-const CRITS = {ch1:"Chamados/dia (N1)", ch2:"Chamados escalados/dia (N2)", sites:"Sites monitorados", fixo:"Quantidade fixa"};
-const CAPLBL = {ch1:"Chamados/dia por pessoa", ch2:"Chamados/dia por pessoa", sites:"Sites por pessoa", fixo:"—"};
 const clone = a => a.map(x => ({...x}));
-let tab = "n3";
+let tab = "n12";
 let CF3 = clone(DEF.cf3), CF12 = clone(DEF.cf12), FX = clone(DEF.faixas), TEAM = clone(DEF.team);
 
 const $ = id => document.getElementById(id);
@@ -481,7 +472,7 @@ $("btnModelo").addEventListener("click", () => {
 
 // ---------- Listas de gastos fixos ----------
 function renderCF(lista, body){
-  const arr = lista === "cf3" ? CF3 : CF12;
+  const arr = lista === "cf3" ? CF3 : lista === "team" ? TEAM : CF12;
   $(body).innerHTML = arr.map((c,i) => `<tr data-i="${i}">
     <td><input class="nm" data-k="n" value="${esc(c.n)}"></td>
     <td><input type="number" data-k="v" step="50" min="0" value="${c.v}"></td>
@@ -493,9 +484,12 @@ function renderCF(lista, body){
   });
 }
 $("cf3Add").addEventListener("click", () => { CF3.push({n:"Novo gasto", v:0}); renderCF("cf3","cf3Body"); calc(); $("cf3Body").querySelector("tr:last-child .nm").select(); });
+$("teamAdd").addEventListener("click", () => { TEAM.push({n:"Nova função", v:0}); renderCF("team","teamBody"); calc(); $("teamBody").querySelector("tr:last-child .nm").select(); });
 $("cf12Add").addEventListener("click", () => { CF12.push({n:"Novo gasto", v:0}); renderCF("cf12","cf12Body"); calc(); $("cf12Body").querySelector("tr:last-child .nm").select(); });
 
 // ---------- Faixas ----------
+// Base de referência = total de sites da planilha (todos os estados, marcados ou não)
+function baseRef(){ return Math.max(1, UFS.reduce((s,u) => s + (+u[1]||0), 0)); }
 function renderFX(){
   $("fxBody").innerHTML = FX.map((f,i) => `<tr data-i="${i}">
     <td><input class="nm" data-k="n" value="${esc(f.n)}"></td>
@@ -514,60 +508,19 @@ function renderFX(){
 }
 $("fxAdd").addEventListener("click", () => {
   const menor = FX.reduce((m,f) => Math.min(m, +f.min||0), Infinity), crit = $("fxCrit").value;
-  const min = isFinite(menor) ? Math.max(0, crit === "pct" ? menor - 10 : Math.round(menor*.8)) : (crit === "pct" ? 100 : v("baseRef"));
+  const min = isFinite(menor) ? Math.max(0, crit === "pct" ? menor - 10 : Math.round(menor*.8)) : (crit === "pct" ? 100 : baseRef());
   FX.push({n:`Faixa ${FX.length+1}`, min, v:0}); renderFX(); calc();
   const ins = $("fxBody").querySelectorAll("tr:last-child input"); if (ins[2]) ins[2].focus();
 });
 $("fxReset").addEventListener("click", () => {
   FX = clone(DEF.faixas); $("fxCrit").value = "pct"; $("fxModo").value = "fechada";
-  $("fRev").value = DEF.fRev; $("exc").value = DEF.exc; renderFX(); calc();
+  $("fRev").value = DEF.fRev; renderFX(); calc();
 });
 $("fxCrit").addEventListener("change", () => {
-  const ref = Math.max(1, v("baseRef"));
+  const ref = baseRef();
   FX.forEach(f => f.min = $("fxCrit").value === "qtd" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round((+f.min||0)/ref*1000)/10);
   renderFX(); calc();
 });
-
-// ---------- Equipe ----------
-const opts = (obj, sel) => Object.entries(obj).map(([k,l]) => `<option value="${k}" ${k===sel?"selected":""}>${l}</option>`).join("");
-function renderTeam(){
-  $("teamList").innerHTML = TEAM.map((t,i) => `<div class="cargo" data-i="${i}">
-    <div class="cargo-top">
-      <span class="lvl">${t.nivel === "G" ? "Gestão" : t.nivel}</span>
-      <input data-k="nome" value="${esc(t.nome)}" placeholder="Nome do cargo">
-      <button type="button" class="del" title="Remover cargo">×</button>
-    </div>
-    <div class="grid">
-      <label class="f">Nível<select data-k="nivel">${opts(NIVEIS, t.nivel)}</select></label>
-      <label class="f">Dimensionar por<select data-k="crit">${opts(CRITS, t.crit)}</select></label>
-      <label class="f">${CAPLBL[t.crit]}<input type="number" data-k="cap" step="any" min="0" value="${t.cap}" ${t.crit==="fixo"?"disabled":""}></label>
-      <label class="f">Carga horária (h/dia)<input type="number" data-k="carga" step="0.5" min="0" value="${t.carga}"></label>
-      <label class="f">Cobertura exigida (h/dia)<input type="number" data-k="cob" step="1" min="0" max="24" value="${t.cob}" ${t.crit==="fixo"?"disabled":""}></label>
-      <label class="f">${t.crit==="fixo"?"Quantidade":"Quantidade mínima"}<input type="number" data-k="min" step="1" min="0" value="${t.min}"></label>
-      <label class="f">Salário (R$)<input type="number" data-k="sal" step="100" min="0" value="${t.sal}"></label>
-      <label class="f">Encargos (%)<input type="number" data-k="enc" step="1" min="0" value="${t.enc}"></label>
-      <label class="f">Benefícios (R$/mês)<input type="number" data-k="ben" step="50" min="0" value="${t.ben}"></label>
-    </div>
-    <textarea data-k="atrib" rows="2" placeholder="O que esse cargo faz">${esc(t.atrib||"")}</textarea>
-    <div class="cargo-res"></div>
-  </div>`).join("");
-  $("teamList").querySelectorAll(".cargo").forEach(card => {
-    const i = +card.dataset.i;
-    card.querySelectorAll("[data-k]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
-      const k = el.dataset.k;
-      TEAM[i][k] = ["nome","atrib","nivel","crit"].includes(k) ? el.value : (parseFloat(el.value) || 0);
-      if (el.tagName === "SELECT") renderTeam();
-      calc();
-    }));
-    card.querySelector(".del").addEventListener("click", () => { TEAM.splice(i,1); renderTeam(); calc(); });
-  });
-}
-$("teamAdd").addEventListener("click", () => {
-  TEAM.push({nome:"Novo cargo", nivel:"N1", crit:"ch1", cap:40, carga:8, cob:0, min:1, sal:3000, enc:80, ben:900, atrib:""});
-  renderTeam(); calc();
-  const c = $("teamList").lastElementChild; c.scrollIntoView({behavior:"smooth", block:"center"}); c.querySelector("[data-k=nome]").select();
-});
-$("teamReset").addEventListener("click", () => { TEAM = clone(DEF.team); CF12 = clone(DEF.cf12); renderTeam(); renderCF("cf12","cf12Body"); calc(); });
 
 // ---------- Estado ----------
 function load(st){
@@ -579,10 +532,9 @@ function load(st){
   CF3 = lista(st.cf3, DEF.cf3, c => ({n:String(c.n??""), v:+c.v||0}));
   CF12 = lista(st.cf12, DEF.cf12, c => ({n:String(c.n??""), v:+c.v||0}));
   FX = lista(st.faixas, DEF.faixas, f => ({n:String(f.n??""), min:+f.min||0, v:+f.v||0}));
-  TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t,
-    nivel: NIVEIS[t.nivel] ? t.nivel : "N1", crit: CRITS[t.crit] ? t.crit : "fixo"}));
-  renderCF("cf3","cf3Body"); renderCF("cf12","cf12Body"); renderFX(); renderTeam();
-  setTab(["n3","n12","tot"].includes(st.tab) ? st.tab : "n3");
+  TEAM = lista(st.team, DEF.team, t => ({n:String(t.n ?? t.nome ?? ""), v:+(t.v ?? 0)||0}));
+  renderCF("cf3","cf3Body"); renderCF("cf12","cf12Body"); renderCF("team","teamBody"); renderFX();
+  setTab(["n3","n12","tot"].includes(st.tab) ? st.tab : "n12");
 }
 function state(){
   const st = {tab}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
@@ -630,10 +582,10 @@ function calcN3(base, imp){
 
 // ---------- Cálculo N1 + N2 ----------
 function calcN12(base, imp){
-  const ref = Math.max(1, v("baseRef"));
+  const ref = baseRef();
   const pct = base/ref;
   const crit = $("fxCrit").value, modoFx = $("fxModo").value;
-  const fRev = v("fRev"), exc = v("exc");
+  const fRev = v("fRev");
   $("fxColMin").textContent = crit === "pct" ? "A partir de (% da base)" : "A partir de (sites)";
   const tiers = FX.map((f,i) => ({i, n:f.n||`Faixa ${i+1}`, v:+f.v||0,
       thr: Math.max(0, crit === "pct" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round(+f.min||0))}))
@@ -642,12 +594,8 @@ function calcN12(base, imp){
   let faixa, fat, extra = "";
   if (modoFx === "fechada") {
     const t = tiers.find(t => base >= t.thr);
-    if (t) {
-      faixa = t.n; ativas.add(t.i);
-      if (exc > 0 && base > ref) { fat = ref*t.v + (base-ref)*exc; extra = ` ${n0(base-ref)} sites acima da referência cobrados a ${brl(exc)}.`; }
-      else fat = base*t.v;
-      extra = ` Todos os ${n0(base)} sites a ${brl(t.v)}.` + extra;
-    } else {
+    if (t) { faixa = t.n; ativas.add(t.i); fat = base*t.v; extra = ` Todos os ${n0(base)} sites a ${brl(t.v)}.`; }
+    else {
       faixa = "Abaixo da menor faixa"; fat = base*fRev;
       extra = ` <span class="warn">Base abaixo da menor faixa — usado o valor de “Abaixo da menor faixa” (${brl(fRev)}).</span>`;
     }
@@ -669,62 +617,35 @@ function calcN12(base, imp){
     tr.querySelector(".rng").textContent = sup === null ? `${n0(t.thr)} ou mais` : (sup < t.thr ? "sobreposta" : `${n0(t.thr)} a ${n0(sup)}`);
     tr.classList.toggle("ativa", ativas.has(i));
   });
-  const sN1 = Math.min(Math.max(v("n1Pct"),0),100)/100;
-  const fatN1 = fat*sN1, fatN2 = fat - fatN1;
-  $("o_pct").textContent = pc(pct);
+  $("o_ref").textContent = `${n0(ref)} sites`;
+  $("o_pct").textContent = `${n0(base)} · ${pc(pct)}`;
   $("o_faixa").textContent = faixa;
   $("o_vsite").textContent = brl(base ? fat/base : 0);
   $("o_m12").textContent = brl(fat);
   $("n12note").innerHTML = `<b>${modoFx === "fechada" ? "Faixa fechada" : "Progressiva"}</b> · faixa aplicada: <b>${esc(faixa)}</b>.${extra}`;
 
-  // Volume e equipe
-  const diasOp = Math.max(1, v("diasOp")), diasTrab = Math.max(1, v("diasTrab")), fatD = diasOp/diasTrab;
-  const chamados = base*v("pAb12")/100, ch2 = chamados*v("pN2")/100;
-  const vol = {ch1:chamados/diasOp, ch2:ch2/diasOp};
+  // Volume
+  const diasOp = Math.max(1, v("diasOp"));
+  const chamados = base*v("pAb12")/100;
   $("volBox").innerHTML = `
     <div><small>Chamados / mês</small><strong>${n1(chamados)}</strong></div>
-    <div><small>Chamados N1 / dia</small><strong>${n1(vol.ch1)}</strong></div>
-    <div><small>Escalados N2 / dia</small><strong>${n1(vol.ch2)}</strong></div>`;
-  const lv = {N1:{p:0,c:0}, N2:{p:0,c:0}, G:{p:0,c:0}};
-  const cards = $("teamList").querySelectorAll(".cargo");
-  TEAM.forEach((t,i) => {
-    let q, det = [];
-    if (t.crit === "fixo") { q = Math.max(0, Math.round(t.min||0)); det.push("quantidade fixa"); }
-    else {
-      let qVol = 0, qCob = 0;
-      if (t.crit === "sites") { if (t.cap > 0) { qVol = Math.ceil(base/t.cap - 1e-9); det.push(`${n0(base)} sites ÷ ${n0(t.cap)} ⇒ ${qVol}`); } }
-      else if (t.cap > 0) { qVol = Math.ceil(vol[t.crit]/t.cap*fatD - 1e-9); det.push(`demanda ${n1(vol[t.crit])}/dia ÷ ${n1(t.cap)} ⇒ ${qVol}`); }
-      if (t.cob > 0 && t.carga > 0) { qCob = Math.ceil(t.cob*diasOp/(t.carga*diasTrab) - 1e-9); det.push(`cobertura ${n1(t.cob)}h/dia ⇒ ${qCob}`); }
-      if (t.min > 0) det.push(`mínimo ${n0(t.min)}`);
-      q = Math.max(qVol, qCob, Math.round(t.min||0));
-      if ((t.crit === "ch1" || t.crit === "ch2") && q > 0 && t.cap > 0) det.push(`ocupação ${pc(vol[t.crit]*fatD/(q*t.cap))}`);
-    }
-    const unit = (t.sal||0)*(1+(t.enc||0)/100) + (t.ben||0), tot = q*unit;
-    const L = lv[t.nivel] || lv.G; L.p += q; L.c += tot;
-    if (cards[i]) cards[i].querySelector(".cargo-res").innerHTML =
-      `<b>${q} ${q===1?"pessoa":"pessoas"}</b><b>${brl(tot)}/mês</b><span>${brl(unit)} por pessoa (salário + encargos + benefícios) · ${det.join(" · ")}</span>`;
-  });
+    <div><small>Chamados / dia</small><strong>${n1(chamados/diasOp)}</strong></div>`;
+
+  // Custos
+  const equipe = TEAM.reduce((s,t) => s + (+t.v||0), 0);
   const cf = CF12.reduce((s,c) => s + (+c.v||0), 0);
+  $("teamTotal").textContent = brl(equipe);
   $("cf12Total").textContent = brl(cf);
-  const estrutura = cf + lv.G.c, opP = lv.N1.p + lv.N2.p;
+  const custo = equipe + cf;
   const margem = Math.min(Math.max(v("margem12"),0),95)/100;
-  const minP = c => c/(1-imp), sugP = c => c/((1-imp)*(1-margem));
-  const custoNiv = {};
-  const linhas = ["N1","N2"].map(k => {
-    const rat = opP ? estrutura*lv[k].p/opP : (k === "N1" ? estrutura : 0);
-    const c = lv[k].c + rat; custoNiv[k] = c;
-    return `<tr><td>${NIVEIS[k]}</td><td>${lv[k].p}</td><td>${brl(lv[k].c)}</td><td>${brl(rat)}</td><td>${brl(c)}</td><td>${brl(base?c/base:0)}</td><td>${brl(base?minP(c)/base:0)}</td><td>${brl(base?sugP(c)/base:0)}</td></tr>`;
-  });
-  const custo = custoNiv.N1 + custoNiv.N2;
-  const pessoas = lv.N1.p + lv.N2.p + lv.G.p;
-  linhas.push(`<tr class="tot"><td>Total (inclui ${lv.G.p} em gestão)</td><td>${pessoas}</td><td>${brl(lv.N1.c+lv.N2.c+lv.G.c)}</td><td>${brl(cf)} fixos</td><td>${brl(custo)}</td><td>${brl(base?custo/base:0)}</td><td>${brl(base?minP(custo)/base:0)}</td><td>${brl(base?sugP(custo)/base:0)}</td></tr>`);
-  $("teamRes").innerHTML = linhas.join("");
-  const preco = base ? fat/base : 0, minS = base ? minP(custo)/base : 0;
-  $("teamNote").innerHTML = `Custo de ${brl(custo)}/mês. Para empatar, precisa cobrar <b>${brl(minS)}</b> por site; com ${n0(margem*100)}% de margem, <b>${brl(base?sugP(custo)/base:0)}</b>. Preço atual das faixas: <b>${brl(preco)}</b> por site ` +
+  const minS = base ? custo/(1-imp)/base : 0, sugS = base ? custo/((1-imp)*(1-margem))/base : 0;
+  $("teamRes").innerHTML = `<tr class="tot"><td>N1 + N2</td><td>${brl(equipe)}</td><td>${brl(cf)}</td><td>${brl(custo)}</td><td>${brl(base?custo/base:0)}</td><td>${brl(minS)}</td><td>${brl(sugS)}</td></tr>`;
+  const preco = base ? fat/base : 0;
+  $("teamNote").innerHTML = `Para empatar, precisa cobrar <b>${brl(minS)}</b> por site; com ${n0(margem*100)}% de margem, <b>${brl(sugS)}</b>. Preço atual das faixas: <b>${brl(preco)}</b> por site ` +
     (preco >= minS ? `<span class="badge ok">cobre o custo</span>` : `<span class="badge bad">abaixo do custo</span>`);
 
   const impostos = fat*imp, liq = fat - impostos, res = liq - custo;
-  return {fat, fatN1, fatN2, impostos, liq, custo, custoN1:custoNiv.N1, custoN2:custoNiv.N2, pessoal:lv.N1.c+lv.N2.c+lv.G.c, cf, res, pessoas, setup:v("setup"), chamados};
+  return {fat, impostos, liq, custo, equipe, cf, res, setup:v("setup"), chamados, funcoes:TEAM.length};
 }
 
 // ---------- Resumo lateral ----------
@@ -750,8 +671,7 @@ function calc(){
   // ---------- Consolidado ----------
   const impF = x => x*imp;
   const rows = [
-    {k:"N1 — NOC", fat:B.fatN1, custo:B.custoN1, cor:"#1f5fd1"},
-    {k:"N2 — Suporte remoto", fat:B.fatN2, custo:B.custoN2, cor:"#7a5af8"},
+    {k:"N1 + N2 — NOC e remoto", fat:B.fat, custo:B.custo, cor:"#1f5fd1"},
     {k:"N3 — Campo", fat:A.fat, custo:A.custo, cor:"#0e9384"}
   ].map(r => ({...r, imp:impF(r.fat), liq:r.fat-impF(r.fat), res:r.fat-impF(r.fat)-r.custo}));
   const T = rows.reduce((s,r) => ({fat:s.fat+r.fat, imp:s.imp+r.imp, liq:s.liq+r.liq, custo:s.custo+r.custo, res:s.res+r.res}), {fat:0,imp:0,liq:0,custo:0,res:0});
@@ -781,15 +701,15 @@ function calc(){
   } else if (tab === "n12") {
     resumo("Resumo mensal · N1 + N2", [
       linha("Faturamento bruto", brl(B.fat), true), linha("(−) Impostos", brl(-B.impostos)), linha("Receita líquida", brl(B.liq)),
-      linha("(−) Pessoal", brl(-B.pessoal)), linha("(−) Gastos fixos", brl(-B.cf))
+      linha("(−) Equipe", brl(-B.equipe)), linha("(−) Gastos fixos", brl(-B.cf))
     ], B.res, B.liq, [
-      linha("Pessoas na equipe", B.pessoas), linha("Chamados por mês", n1(B.chamados)),
+      linha("Funções na equipe", B.funcoes), linha("Chamados por mês", n1(B.chamados)),
       linha("Setup (bruto)", brl(B.setup)),
       linha(`Contrato ${meses} meses + setup`, brl(B.fat*meses + B.setup)), linha("Resultado no contrato", brl(B.res*meses + B.setup*(1-imp)))
-    ], `Faturamento = sites × valor da faixa.<br>Pessoas = maior entre demanda, cobertura de horário e mínimo.<br>Gestão e gastos fixos são rateados entre N1 e N2 por número de pessoas.<br>Preço mínimo = custo ÷ (1 − imposto) ÷ base.`);
+    ], `Base de referência = total de sites da planilha.<br>Faturamento = sites atendidos × valor da faixa.<br>Custo = equipe + gastos fixos.<br>Preço mínimo = custo ÷ (1 − imposto) ÷ base.`);
   } else {
     resumo("Resumo mensal · Consolidado", [
-      linha("N1 — NOC", brl(B.fatN1)), linha("N2 — Suporte remoto", brl(B.fatN2)), linha("N3 — Campo", brl(A.fat)),
+      linha("N1 + N2 — NOC e remoto", brl(B.fat)), linha("N3 — Campo", brl(A.fat)),
       linha("Faturamento bruto", brl(T.fat), true), linha("(−) Impostos", brl(-T.imp)), linha("Receita líquida", brl(T.liq)),
       linha("(−) Custos N1 + N2", brl(-B.custo)), linha("(−) Custos N3", brl(-A.custo))
     ], T.res, T.liq, [
