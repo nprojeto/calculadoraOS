@@ -157,13 +157,9 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     </div>
 
     <div class="grid">
-      <label class="f">% de abertura de chamados (mês)
+      <label class="f">% de abertura de chamados de campo (mês)
         <input type="number" id="pAb" step="0.1" min="0">
-        <small>Sobre a base</small>
-      </label>
-      <label class="f">% dos chamados que viram OS de campo
-        <input type="number" id="pCampo" step="1" min="0" max="100">
-        <small>Os que não se resolvem remotamente</small>
+        <small>Sobre a base — cada chamado vira uma OS de campo</small>
       </label>
       <label class="f">Quanto quero receber por OS (R$)
         <input type="number" id="alvo" step="1" min="0">
@@ -174,14 +170,9 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
           <option value="bruto">Bruto (com impostos)</option>
         </select>
       </label>
-      <label class="f" id="riscoBox">Margem de risco de volume (%)
-        <input type="number" id="risco" step="1" min="0">
-        <small>Só no valor fixo sobre a base</small>
-      </label>
     </div>
 
     <div class="mini">
-      <div><small>Chamados / mês</small><strong id="o_ch">–</strong></div>
       <div><small>OS de campo / mês</small><strong id="o_os">–</strong></div>
       <div><small>OS de campo / dia</small><strong id="o_osd">–</strong></div>
       <div><small>Preço bruto por OS</small><strong id="o_bos">–</strong></div>
@@ -305,11 +296,11 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     </div>
     <div class="card" style="font-size:12.5px;color:var(--muted)">
       <b style="color:var(--ink)">Como os cálculos funcionam</b><br>
-      OS/mês = base × % abertura × % campo.<br>
+      OS/mês = base × % de abertura de chamados de campo.<br>
       Bruto = líquido ÷ (1 − imposto).<br>
       Custo total = pessoal + gastos fixos + OS × custo variável.<br>
       Preço sugerido = custo ÷ (1 − imposto) ÷ (1 − margem).<br>
-      Valor fixo sobre a base = OS previstas × bruto por OS × (1 + risco) ÷ base. A receita fica fixa e o risco de volume fica com você.
+      Valor fixo sobre a base = OS previstas × bruto por OS ÷ base. A receita fica fixa e o risco de volume fica com você.
     </div>
   </div>
 </aside>
@@ -326,7 +317,7 @@ const UFS_PROPOSTA = [
 let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
   base:4399, imp:16.33, meses:24,
-  mode:"os", pAb:5, pCampo:20, alvo:250, alvoTipo:"liq", risco:10,
+  mode:"os", pAb:5, alvo:250, alvoTipo:"liq",
   diasOp:22, diasTrab:22, margem:20,
   terc:0, km:40, rkm:1.5, outros:20,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
@@ -338,7 +329,7 @@ const DEF = {
   ],
   cf:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300},{n:"Celulares e chips dos técnicos",v:900},{n:"Ferramentas e EPIs",v:600}]
 };
-const NUMS = ["base","imp","meses","pAb","pCampo","alvo","risco","diasOp","diasTrab","margem","terc","km","rkm","outros"];
+const NUMS = ["base","imp","meses","pAb","alvo","diasOp","diasTrab","margem","terc","km","rkm","outros"];
 const SELS = ["alvoTipo"];
 const CRITS = {os:"OS de campo/dia", uf:"Pessoas por estado", sites:"Sites da base", fixo:"Quantidade fixa"};
 const CAPLBL = {os:"OS/dia por pessoa", uf:"Pessoas por estado", sites:"Sites por pessoa", fixo:"—"};
@@ -539,7 +530,6 @@ let ultimoSug = {liqOS:0, brutoOS:0};
 
 function calc(){
   document.querySelectorAll(".seg button").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
-  $("riscoBox").style.opacity = mode === "base" ? 1 : .45;
 
   const imp = Math.min(Math.max(v("imp"),0),99)/100;
   const base = Math.max(0, Math.round(v("base")));
@@ -548,19 +538,16 @@ function calc(){
   const nEstados = [...$("ufs").querySelectorAll("[data-i]")].filter(c => c.checked && UFS[+c.dataset.i][1] > 0).length;
 
   // ---------- Volume e preço ----------
-  const pAb = v("pAb")/100, pCampo = v("pCampo")/100;
-  const chamados = base*pAb;
-  const os = chamados*pCampo;
+  const pAb = v("pAb")/100;
+  const os = base*pAb;
   const alvo = v("alvo");
   const brutoOS = $("alvoTipo").value === "liq" ? alvo/(1-imp) : alvo;
   const liqOS = brutoOS*(1-imp);
-  const risco = v("risco")/100;
-  const vSiteBase = base ? os*brutoOS*(1+risco)/base : 0;
+  const vSiteBase = base ? os*brutoOS/base : 0;
   const recBase = vSiteBase*base;
   const fat = mode === "os" ? os*brutoOS : recBase;
   const vSite = base ? fat/base : 0;
 
-  $("o_ch").textContent = n1(chamados);
   $("o_os").textContent = n1(os);
   $("o_osd").textContent = n1(os/diasOp);
   $("o_bos").textContent = brl(brutoOS);
@@ -569,7 +556,7 @@ function calc(){
   $("o_fat").textContent = brl(fat);
   $("n3note").innerHTML = mode === "os"
     ? `<b>Por OS:</b> você fatura ${brl(brutoOS)} por OS executada e recebe ${brl(liqOS)} líquido. A receita acompanha o volume real — sem risco de volume para você, mas sem previsibilidade de custo para o cliente.`
-    : `<b>Valor fixo sobre a base:</b> ${brl(vSiteBase)} por site/mês × ${n0(base)} sites = ${brl(recBase)} por mês, independente de quantas OS acontecerem (já com ${n0(risco*100)}% de margem de risco).`;
+    : `<b>Valor fixo sobre a base:</b> ${brl(vSiteBase)} por site/mês × ${n0(base)} sites = ${brl(recBase)} por mês, independente de quantas OS acontecerem.`;
 
   // ---------- Equipe e custos ----------
   const D = dimensionar(os, base, nEstados);
