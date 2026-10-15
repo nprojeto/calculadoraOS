@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Calculadora de Campo N3</title>
-<meta name="description" content="Simulador de precificação do atendimento de campo (N3): por ordem de serviço ou valor fixo sobre a base, com equipe e estrutura.">
+<title>Calculadora N1 · N2 · N3</title>
+<meta name="description" content="Simulador de precificação: atendimento de campo (N3), NOC e suporte remoto (N1 + N2) e visão consolidada.">
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--ink:#14213d;--muted:#5b6478;--line:#dfe4ee;--brand:#0f2a5c;--accent:#1f5fd1;--accent-ink:#fff;--ok:#127a3e;--warn:#a35f00;--bad:#b42318;--soft:#eef2f9}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--ink:#e6edf3;--muted:#9aa4b2;--line:#2b3340;--brand:#13244a;--accent:#4c8dff;--accent-ink:#fff;--ok:#3fb950;--warn:#d29922;--bad:#f85149;--soft:#1c2330}}
@@ -30,22 +30,25 @@ label.f small{font-size:11.5px;opacity:.85}
 input[type=number],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
 input:disabled{opacity:.5}
-.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
 .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:14px;flex-wrap:wrap}
-.seg button{font:inherit;font-size:13px;border:0;background:var(--card);color:var(--ink);padding:9px 14px;cursor:pointer}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px;border-bottom:2px solid var(--line)}
+.tabs button{font:inherit;font-size:14px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0}
+.tabs button:hover{color:var(--ink);background:var(--soft)}
+.tabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.panel[hidden]{display:none}
 .tablewrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
 th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);font-weight:600}
 th:first-child,td:first-child{text-align:left}
 tr.hl td{background:var(--soft);font-weight:600}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
 td.pos{color:var(--ok)} td.neg{color:var(--bad)}
 table.fx td{padding:5px 6px}
 table.fx input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 8px;width:100%;min-width:90px;text-align:right}
 table.fx input.nm{text-align:left;min-width:160px}
+table.fx tr.ativa td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+table.fx .rng{color:var(--muted);font-size:12.5px}
 .ufs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin:4px 0 12px}
 .uf{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer}
 .uf span{color:var(--muted);font-size:12px}
@@ -74,7 +77,9 @@ textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;color:var(--in
 .cargo-res{margin-top:10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
 .cargo-res b{font-size:15px}
 .cargo-res span{color:var(--muted)}
+.lvl{font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px;background:var(--soft);color:var(--accent);white-space:nowrap}
 .del{border:0;background:transparent;color:var(--bad);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
+.del:disabled{opacity:.3;cursor:default}
 aside .sticky{position:sticky;top:16px}
 .sum h2{margin-bottom:12px}
 .line{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
@@ -88,16 +93,20 @@ aside .sticky{position:sticky;top:16px}
 .badge.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
 .badge.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--soft);margin:6px 0 4px}
+.bar span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
-@media print{header .hbtn,.seg,.btn,.del{display:none} aside .sticky{position:static} main.wrap{grid-template-columns:1fr}}
+@media print{header .hbtn,.btn,.del,.tabs{display:none} .panel[hidden]{display:block} aside .sticky{position:static} main.wrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div>
-      <h1>Calculadora de atendimento de campo · N3</h1>
-      <p>Quanto cobrar por ordem de serviço ou por site da base, a partir da equipe e da estrutura necessárias</p>
+      <h1>Calculadora de precificação · N1 · N2 · N3</h1>
+      <p>Atendimento de campo, NOC e suporte remoto — e a soma de tudo</p>
     </div>
     <div class="row" style="margin:0">
       <button class="hbtn" id="btnLink" type="button">Copiar link da simulação</button>
@@ -109,9 +118,9 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 <main class="wrap">
 <section>
 
-  <!-- 1. BASE -->
+  <!-- BASE (comum às abas) -->
   <div class="card">
-    <h2>1. Base e impostos</h2>
+    <h2>Base e impostos <span class="tag">Comum às abas</span></h2>
     <p class="sub">Importe a planilha da base, selecione os estados ou digite a quantidade de sites diretamente.</p>
 
     <div class="imp">
@@ -125,7 +134,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
         <button type="button" class="btn ghost" id="btnModelo">Baixar modelo</button>
         <button type="button" class="btn ghost" id="btnPadrao">Voltar à base da proposta</button>
       </div>
-      <textarea id="pasteBase" rows="4" placeholder="…ou cole aqui direto do Excel (duas colunas):&#10;MG	2195&#10;RJ	601&#10;ES	532"></textarea>
+      <textarea id="pasteBase" rows="3" placeholder="…ou cole aqui direto do Excel (duas colunas):&#10;MG	2195&#10;RJ	601"></textarea>
       <div class="row" style="margin:8px 0 0">
         <button type="button" class="btn" id="btnColar">Usar dados colados</button>
         <span id="impStatus" class="imp-status"></span>
@@ -134,118 +143,188 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 
     <div class="ufs" id="ufs"></div>
     <div class="grid">
-      <label class="f">Tamanho da base (sites / INEP)
-        <input type="number" id="base" min="0" step="1">
-      </label>
-      <label class="f">% de imposto sobre faturamento
-        <input type="number" id="imp" min="0" max="99" step="0.01">
-        <small>Ex.: Lucro Presumido ≈ 16,33% (ISS 5 + PIS 0,65 + COFINS 3 + IRPJ 4,8 + CSLL 2,88)</small>
-      </label>
-      <label class="f">Prazo do contrato (meses)
-        <input type="number" id="meses" min="1" step="1">
-      </label>
+      <label class="f">Tamanho da base (sites / INEP)<input type="number" id="base" min="0" step="1"></label>
+      <label class="f">% de imposto sobre faturamento<input type="number" id="imp" min="0" max="99" step="0.01"><small>Ex.: Lucro Presumido ≈ 16,33%</small></label>
+      <label class="f">Prazo do contrato (meses)<input type="number" id="meses" min="1" step="1"></label>
     </div>
   </div>
 
-  <!-- 2. VOLUME E PREÇO -->
-  <div class="card">
-    <h2>2. Volume e preço por OS</h2>
-    <p class="sub">Volume previsto de OS de campo e o valor que você quer receber por OS. O equivalente por site/mês aparece logo abaixo.</p>
+  <nav class="tabs" role="tablist">
+    <button type="button" data-tab="n3">N3 · Campo</button>
+    <button type="button" data-tab="n12">N1 + N2 · NOC e remoto</button>
+    <button type="button" data-tab="tot">Consolidado</button>
+  </nav>
 
-    <div class="grid">
-      <label class="f">% de abertura de chamados de campo (mês)
-        <input type="number" id="pAb" step="0.1" min="0">
-        <small>Sobre a base — cada chamado vira uma OS de campo</small>
-      </label>
-      <label class="f">Quanto quero receber por OS (R$)
-        <input type="number" id="alvo" step="1" min="0">
-      </label>
-      <label class="f">Esse valor é
-        <select id="alvoTipo">
-          <option value="liq">Líquido (após impostos)</option>
-          <option value="bruto">Bruto (com impostos)</option>
-        </select>
-      </label>
+  <!-- ===================== ABA N3 ===================== -->
+  <div class="panel" data-panel="n3">
+    <div class="card">
+      <h2>1. Volume e preço por OS</h2>
+      <p class="sub">Volume previsto de OS de campo e o valor que você quer receber por OS.</p>
+      <div class="grid">
+        <label class="f">% de abertura de chamados de campo (mês)<input type="number" id="pAb" step="0.1" min="0"><small>Sobre a base — cada chamado vira uma OS de campo</small></label>
+        <label class="f">Quanto quero receber por OS (R$)<input type="number" id="alvo" step="1" min="0"></label>
+        <label class="f">Esse valor é
+          <select id="alvoTipo"><option value="liq">Líquido (após impostos)</option><option value="bruto">Bruto (com impostos)</option></select>
+        </label>
+      </div>
+      <div class="mini">
+        <div><small>OS de campo / mês</small><strong id="o_os">–</strong></div>
+        <div><small>Preço bruto por OS</small><strong id="o_bos">–</strong></div>
+        <div><small>Líquido por OS</small><strong id="o_los">–</strong></div>
+        <div><small>Equivalente por site/mês</small><strong id="o_site">–</strong></div>
+        <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_fat">–</strong></div>
+      </div>
+      <div class="note" id="n3note"></div>
     </div>
 
-    <div class="mini">
-      <div><small>OS de campo / mês</small><strong id="o_os">–</strong></div>
-      <div><small>Preço bruto por OS</small><strong id="o_bos">–</strong></div>
-      <div><small>Líquido por OS</small><strong id="o_los">–</strong></div>
-      <div><small>Equivalente por site/mês</small><strong id="o_site">–</strong></div>
-      <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_fat">–</strong></div>
+    <div class="card">
+      <h2>2. Custos <span class="tag">Terceirizado</span></h2>
+      <p class="sub">O atendimento é feito por parceiro. Informe quanto você paga por OS e os gastos fixos da operação de campo.</p>
+      <div class="grid">
+        <label class="f">Valor pago ao parceiro por OS (R$)<input type="number" id="terc" step="1" min="0"><small>O que o parceiro cobra para atender cada ordem</small></label>
+      </div>
+      <h3 class="h3">Gastos fixos mensais — campo</h3>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Item</th><th>R$ / mês</th><th></th></tr></thead>
+          <tbody id="cf3Body"></tbody>
+          <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="cf3Total">–</b></td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 0">
+        <button type="button" class="btn" id="cf3Add">+ Adicionar gasto</button>
+      </div>
+      <div class="note" id="n3cost"></div>
     </div>
-    <div class="note" id="n3note"></div>
+
+    <div class="card">
+      <h2>3. E se o volume de chamados variar?</h2>
+      <p class="sub">Resultado mensal do campo quando a abertura real fica diferente da prevista.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>% abertura</th><th>OS/mês</th><th>Custo total</th><th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th></tr></thead>
+          <tbody id="sens"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <!-- 3. CUSTOS -->
-  <div class="card">
-    <h2>3. Custos <span class="tag">Terceirizado</span></h2>
-    <p class="sub">O atendimento é feito por parceiro. Informe quanto você paga por OS e os gastos fixos da operação.</p>
-
-    <div class="grid">
-      <label class="f">Valor pago ao parceiro por OS (R$)<input type="number" id="terc" step="1" min="0"><small>O que o parceiro cobra para atender cada ordem</small></label>
-      <label class="f">Margem desejada (%)<input type="number" id="margem" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
+  <!-- ===================== ABA N1 + N2 ===================== -->
+  <div class="panel" data-panel="n12" hidden>
+    <div class="card">
+      <h2>1. Volume de chamados</h2>
+      <p class="sub">Chamados que chegam ao NOC (N1) e quantos sobem para o suporte remoto (N2).</p>
+      <div class="grid">
+        <label class="f">% de abertura de chamados (mês)<input type="number" id="pAb12" step="0.1" min="0"><small>Sobre a base. Proposta: até 5%</small></label>
+        <label class="f">% escalados ao N2<input type="number" id="pN2" step="1" min="0" max="100"><small>O restante é resolvido no N1</small></label>
+        <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
+        <label class="f">Dias trabalhados por pessoa/mês<input type="number" id="diasTrab" step="1" min="1"><small>Escala 5x2 ≈ 22</small></label>
+      </div>
+      <div class="mini" id="volBox"></div>
     </div>
 
-    <h3 class="h3">Gastos fixos mensais</h3>
-    <div class="tablewrap">
-      <table class="fx">
-        <thead><tr><th>Item</th><th>R$ / mês</th><th></th></tr></thead>
-        <tbody id="cfBody"></tbody>
-        <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="cfTotal">–</b></td><td></td></tr></tfoot>
-      </table>
+    <div class="card">
+      <h2>2. Preço por site</h2>
+      <p class="sub">Valor mensal por site conforme a faixa em que a base se enquadra. Monte as faixas que quiser trabalhar.</p>
+      <div class="grid" style="margin-bottom:12px">
+        <label class="f">Base de referência (100%)<input type="number" id="baseRef" min="1" step="1"></label>
+        <label class="f">Faixas definidas por
+          <select id="fxCrit"><option value="pct">% da base de referência</option><option value="qtd">Quantidade de sites</option></select>
+        </label>
+        <label class="f">Forma de cobrança
+          <select id="fxModo"><option value="fechada">Faixa fechada — todos os sites no valor da faixa</option><option value="progressiva">Progressiva — cada faixa cobra só os sites dentro dela</option></select>
+        </label>
+      </div>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Nome</th><th id="fxColMin">A partir de (%)</th><th>Intervalo (sites)</th><th>R$ / site / mês</th><th></th></tr></thead>
+          <tbody id="fxBody"></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 14px">
+        <button type="button" class="btn" id="fxAdd">+ Adicionar faixa</button>
+        <button type="button" class="btn ghost" id="fxReset">Restaurar faixas da proposta</button>
+      </div>
+      <div class="grid">
+        <label class="f">Abaixo da menor faixa (R$/site)<input type="number" id="fRev" step="0.01" min="0"><small>Revisão comercial — valor a negociar</small></label>
+        <label class="f">Sites acima da referência (R$/site)<input type="number" id="exc" step="0.01" min="0"><small>Só na faixa fechada. 0 = usa o valor da faixa</small></label>
+        <label class="f">Setup (R$, valor único)<input type="number" id="setup" step="100" min="0"></label>
+        <label class="f">% do valor atribuído ao N1<input type="number" id="n1Pct" step="1" min="0" max="100"><small>Restante é N2 (para separar no consolidado)</small></label>
+      </div>
+      <div class="mini">
+        <div><small>% da base de referência</small><strong id="o_pct">–</strong></div>
+        <div><small>Faixa aplicada</small><strong id="o_faixa">–</strong></div>
+        <div><small>Valor médio por site</small><strong id="o_vsite">–</strong></div>
+        <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_m12">–</strong></div>
+      </div>
+      <div class="note" id="n12note"></div>
     </div>
-    <div class="row" style="margin:10px 0 0">
-      <button type="button" class="btn" id="cfAdd">+ Adicionar gasto</button>
-      <button type="button" class="btn ghost" id="cfReset">Restaurar gastos padrão</button>
+
+    <div class="card">
+      <h2>3. Equipe</h2>
+      <p class="sub">Cargos, capacidade e salários. A quantidade de pessoas é calculada a partir do volume de chamados e da cobertura de horário.</p>
+      <div id="teamList"></div>
+      <div class="row" style="margin:10px 0 0">
+        <button type="button" class="btn" id="teamAdd">+ Adicionar cargo</button>
+        <button type="button" class="btn ghost" id="teamReset">Restaurar equipe padrão</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4. Gastos fixos e custo da operação</h2>
+      <p class="sub">Estrutura do NOC e referência de preço mínimo por site.</p>
+      <div class="tablewrap">
+        <table class="fx">
+          <thead><tr><th>Item</th><th>R$ / mês</th><th></th></tr></thead>
+          <tbody id="cf12Body"></tbody>
+          <tfoot><tr><td><b>Total</b></td><td style="text-align:right"><b id="cf12Total">–</b></td><td></td></tr></tfoot>
+        </table>
+      </div>
+      <div class="row" style="margin:10px 0 14px">
+        <button type="button" class="btn" id="cf12Add">+ Adicionar gasto</button>
+      </div>
+      <div class="grid" style="margin-bottom:12px">
+        <label class="f">Margem desejada (%)<input type="number" id="margem12" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Nível</th><th>Pessoas</th><th>Pessoal</th><th>Rateio gestão + estrutura</th><th>Custo total/mês</th><th>Custo por site</th><th>Preço mínimo/site</th><th>Preço sugerido/site</th></tr></thead>
+          <tbody id="teamRes"></tbody>
+        </table>
+      </div>
+      <div class="note" id="teamNote"></div>
     </div>
   </div>
 
-  <!-- 4. QUANTO COBRAR -->
-  <div class="card">
-    <h2>4. Quanto cobrar <span class="tag">Referência</span></h2>
-    <p class="sub">Custo total (parceiro + gastos fixos) e o preço necessário para cobrir esse custo, os impostos e a margem desejada.</p>
-    <div class="mini" style="margin-top:0">
-      <div><small>Parceiro (OS × valor/OS)</small><strong id="r_var">–</strong></div>
-      <div><small>Gastos fixos</small><strong id="r_cf">–</strong></div>
-      <div><small>Custo total / mês</small><strong id="r_tot">–</strong></div>
-      <div><small>Custo por OS</small><strong id="r_cos">–</strong></div>
-      <div><small>Custo por site/mês</small><strong id="r_csite">–</strong></div>
+  <!-- ===================== ABA CONSOLIDADO ===================== -->
+  <div class="panel" data-panel="tot" hidden>
+    <div class="card">
+      <h2>Consolidado mensal · N1 + N2 + N3</h2>
+      <p class="sub">Soma das duas abas. Os valores são recalculados sempre que algo muda em qualquer aba.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Serviço</th><th>Faturamento bruto</th><th>Impostos</th><th>Receita líquida</th><th>Custos</th><th>Resultado</th><th>Margem</th><th>Por site/mês</th></tr></thead>
+          <tbody id="totBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px">
+        <div class="lbl">Composição do faturamento</div>
+        <div class="bar" id="totBar"></div>
+        <div class="legend" id="totLegend"></div>
+      </div>
     </div>
-    <div class="tablewrap" style="margin-top:14px">
-      <table>
-        <thead><tr><th></th><th>Por OS</th><th>Por site/mês</th><th>Mensal (bruto)</th></tr></thead>
-        <tbody>
-          <tr><td>Preço mínimo (empate)</td><td id="p_minOS">–</td><td id="p_minSite">–</td><td id="p_minMes">–</td></tr>
-          <tr class="hl"><td id="p_sugLbl">Preço sugerido</td><td id="p_sugOS">–</td><td id="p_sugSite">–</td><td id="p_sugMes">–</td></tr>
-          <tr><td>Seu preço atual</td><td id="p_atuOS">–</td><td id="p_atuSite">–</td><td id="p_atuMes">–</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="row" style="margin:12px 0 0">
-      <button type="button" class="btn" id="btnUsarSug">Usar preço sugerido</button>
-      <span id="p_status"></span>
-    </div>
-    <div class="note" id="refNote"></div>
-  </div>
 
-  <!-- 5. SENSIBILIDADE -->
-  <div class="card">
-    <h2>5. E se o volume de chamados variar?</h2>
-    <p class="sub">Resultado mensal quando a abertura real fica diferente da prevista.</p>
-    <div class="tablewrap">
-      <table>
-        <thead>
-          <tr>
-            <th>% abertura</th><th>OS/mês</th><th>Custo total</th>
-            <th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th>
-          </tr>
-        </thead>
-        <tbody id="sens"></tbody>
-      </table>
+    <div class="card">
+      <h2>Contrato completo</h2>
+      <p class="sub">Projeção para o prazo do contrato, incluindo o setup do N1 + N2.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th>Faturamento bruto</th><th>Receita líquida</th><th>Custos</th><th>Resultado</th></tr></thead>
+          <tbody id="ctBody"></tbody>
+        </table>
+      </div>
+      <div class="note" id="totNote"></div>
     </div>
-    <div class="note" id="sensnote"></div>
   </div>
 
 </section>
@@ -254,29 +333,16 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 <aside>
   <div class="sticky">
     <div class="card sum">
-      <h2>Resumo mensal</h2>
-      <div class="line total"><span>Faturamento bruto</span><span id="s_bruto">–</span></div>
-      <div class="line"><span>(−) Impostos</span><span id="s_imp">–</span></div>
-      <div class="line"><span>Receita líquida</span><span id="s_liq">–</span></div>
-      <div class="line"><span>(−) Parceiro</span><span id="s_var">–</span></div>
-      <div class="line"><span>(−) Gastos fixos</span><span id="s_cf">–</span></div>
+      <h2 id="sumTitle">Resumo mensal</h2>
+      <div id="sumLines"></div>
       <div class="sep"></div>
       <div class="lbl">Resultado mensal</div>
       <div class="big" id="s_res">–</div>
       <div id="s_badge" style="margin-top:6px"></div>
       <div class="sep"></div>
-      <div class="line"><span>Resultado por OS</span><span id="s_resOS">–</span></div>
-      <div class="line"><span id="s_ctlbl">Contrato</span><span id="s_ct">–</span></div>
-      <div class="line"><span>Resultado no contrato</span><span id="s_ctres">–</span></div>
+      <div id="sumExtra"></div>
     </div>
-    <div class="card" style="font-size:12.5px;color:var(--muted)">
-      <b style="color:var(--ink)">Como os cálculos funcionam</b><br>
-      OS/mês = base × % de abertura de chamados de campo.<br>
-      Bruto = líquido ÷ (1 − imposto).<br>
-      Custo total = OS × valor do parceiro + gastos fixos.<br>
-      Preço sugerido = custo ÷ (1 − imposto) ÷ (1 − margem).<br>
-      Equivalente por site = faturamento mensal ÷ base.
-    </div>
+    <div class="card" style="font-size:12.5px;color:var(--muted)" id="howBox"></div>
   </div>
 </aside>
 </main>
@@ -285,21 +351,36 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const UFS_PROPOSTA = [
-  ["AM",208],["BA",306],["CE",30],["ES",532],["MG",2195],
-  ["PA",238],["PI",30],["RJ",601],["SP",259]
-];
+const UFS_PROPOSTA = [["AM",208],["BA",306],["CE",30],["ES",532],["MG",2195],["PA",238],["PI",30],["RJ",601],["SP",259]];
 let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
-  base:4399, imp:16.33, meses:24,
-  pAb:5, alvo:250, alvoTipo:"liq",
-  margem:20, terc:180,
+  tab:"n3", base:4399, imp:16.33, meses:24,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
-  cf:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300}]
+  // N3
+  pAb:5, alvo:250, alvoTipo:"liq", terc:180,
+  cf3:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300}],
+  // N1 + N2
+  pAb12:5, pN2:40, diasOp:22, diasTrab:22,
+  baseRef:4399, fxCrit:"pct", fxModo:"fechada", fRev:68.60, exc:57.00, setup:280000, n1Pct:50, margem12:20,
+  faixas:[{n:"100%",min:100,v:54.35},{n:"80%",min:80,v:60.05},{n:"50%",min:50,v:68.60}],
+  team:[
+    {nome:"Analista NOC N1", nivel:"N1", crit:"ch1", cap:40, carga:8, cob:12, min:0, sal:2800, enc:80, ben:900,
+     atrib:"Monitoramento contínuo dos equipamentos, detecção de falhas, abertura proativa de chamados, triagem, classificação e registro por INEP."},
+    {nome:"Analista de suporte N2", nivel:"N2", crit:"ch2", cap:12, carga:8, cob:8, min:0, sal:4500, enc:80, ben:900,
+     atrib:"Diagnóstico e resolução remota dos incidentes escalados, ajustes de configuração em roteadores, controladoras, APs e switches, encaminhamento para campo."},
+    {nome:"Coordenador de operação", nivel:"G", crit:"fixo", cap:0, carga:8, cob:0, min:1, sal:8000, enc:80, ben:1200,
+     atrib:"Gestão da equipe, escalas, indicadores e SLA, relacionamento com o cliente e relatórios mensais."}
+  ],
+  cf12:[{n:"Aluguel do espaço",v:3000},{n:"Água",v:150},{n:"Luz",v:600},{n:"Internet",v:400},{n:"Ferramenta de monitoramento / licenças",v:1500},{n:"Equipamentos (notebooks, depreciação)",v:800}]
 };
-const NUMS = ["base","imp","meses","pAb","alvo","margem","terc"];
-const SELS = ["alvoTipo"];
-let CF = DEF.cf.map(c => ({...c}));
+const NUMS = ["base","imp","meses","pAb","alvo","terc","pAb12","pN2","diasOp","diasTrab","baseRef","fRev","exc","setup","n1Pct","margem12"];
+const SELS = ["alvoTipo","fxCrit","fxModo"];
+const NIVEIS = {N1:"N1 — NOC", N2:"N2 — Suporte remoto", G:"Gestão / apoio"};
+const CRITS = {ch1:"Chamados/dia (N1)", ch2:"Chamados escalados/dia (N2)", sites:"Sites monitorados", fixo:"Quantidade fixa"};
+const CAPLBL = {ch1:"Chamados/dia por pessoa", ch2:"Chamados/dia por pessoa", sites:"Sites por pessoa", fixo:"—"};
+const clone = a => a.map(x => ({...x}));
+let tab = "n3";
+let CF3 = clone(DEF.cf3), CF12 = clone(DEF.cf12), FX = clone(DEF.faixas), TEAM = clone(DEF.team);
 
 const $ = id => document.getElementById(id);
 const v = id => { const x = parseFloat($(id).value); return isFinite(x) ? x : 0; };
@@ -308,6 +389,15 @@ const n0 = x => isFinite(x) ? x.toLocaleString("pt-BR",{maximumFractionDigits:0}
 const n1 = x => isFinite(x) ? x.toLocaleString("pt-BR",{maximumFractionDigits:1}) : "–";
 const pc = x => isFinite(x) ? (x*100).toLocaleString("pt-BR",{maximumFractionDigits:1})+"%" : "–";
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cls = x => x < 0 ? "neg" : "pos";
+
+// ---------- Abas ----------
+function setTab(t){
+  tab = t;
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.dataset.panel !== t);
+}
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => { setTab(b.dataset.tab); calc(); }));
 
 // ---------- Estados ----------
 function renderUFs(checked){
@@ -336,7 +426,7 @@ function parseQtd(x){
   else s = s.replace(",",".");
   return parseFloat(s);
 }
-function status(msg, cls){ const el = $("impStatus"); el.textContent = msg; el.className = "imp-status " + (cls||""); }
+function status(msg, c){ const el = $("impStatus"); el.textContent = msg; el.className = "imp-status " + (c||""); }
 function aplicarLinhas(linhas, origem){
   const mapa = new Map(); let ignoradas = 0;
   linhas.forEach(r => {
@@ -349,7 +439,7 @@ function aplicarLinhas(linhas, origem){
   UFS = [...mapa.entries()].sort((a,b) => b[1]-a[1]);
   renderUFs(); sumUFs();
   const total = UFS.reduce((s,u)=>s+u[1],0);
-  status(`${origem}: ${UFS.length} estados, ${total.toLocaleString("pt-BR")} sites${ignoradas?` · ${ignoradas} linha(s) ignorada(s) (cabeçalho ou sem número)`:""}.`, "ok");
+  status(`${origem}: ${UFS.length} estados, ${total.toLocaleString("pt-BR")} sites${ignoradas?` · ${ignoradas} linha(s) ignorada(s)`:""}.`, "ok");
 }
 function linhasDeTexto(txt){
   return txt.split(/\r?\n/).filter(l => l.trim()).map(l => {
@@ -370,8 +460,7 @@ $("fileBase").addEventListener("change", e => {
     rd.onload = () => {
       try {
         const wb = XLSX.read(new Uint8Array(rd.result), {type:"array"});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        aplicarLinhas(XLSX.utils.sheet_to_json(ws, {header:1, raw:true, blankrows:false}), nome);
+        aplicarLinhas(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:true, blankrows:false}), nome);
       } catch(err) { status("Erro ao ler a planilha: " + err.message, "err"); }
     };
     rd.readAsArrayBuffer(f);
@@ -382,9 +471,7 @@ $("btnColar").addEventListener("click", () => {
   const t = $("pasteBase").value; if (!t.trim()) { status("Cole as duas colunas no campo acima.", "err"); return; }
   aplicarLinhas(linhasDeTexto(t), "Dados colados");
 });
-$("btnPadrao").addEventListener("click", () => {
-  UFS = UFS_PROPOSTA.map(u => u.slice()); renderUFs(); sumUFs(); status("Base da proposta restaurada (4.399 sites).", "ok");
-});
+$("btnPadrao").addEventListener("click", () => { UFS = UFS_PROPOSTA.map(u => u.slice()); renderUFs(); sumUFs(); status("Base da proposta restaurada (4.399 sites).", "ok"); });
 $("btnModelo").addEventListener("click", () => {
   const csv = "﻿Estado;Quantidade\n" + UFS_PROPOSTA.map(u => u.join(";")).join("\n");
   const a = document.createElement("a");
@@ -392,52 +479,130 @@ $("btnModelo").addEventListener("click", () => {
   a.download = "modelo-base.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
-// ---------- Gastos fixos ----------
-function renderCF(){
-  $("cfBody").innerHTML = CF.map((c,i) => `<tr data-i="${i}">
+// ---------- Listas de gastos fixos ----------
+function renderCF(lista, body){
+  const arr = lista === "cf3" ? CF3 : CF12;
+  $(body).innerHTML = arr.map((c,i) => `<tr data-i="${i}">
     <td><input class="nm" data-k="n" value="${esc(c.n)}"></td>
     <td><input type="number" data-k="v" step="50" min="0" value="${c.v}"></td>
     <td><button type="button" class="del" title="Remover">×</button></td></tr>`).join("");
-  $("cfBody").querySelectorAll("tr").forEach(tr => {
+  $(body).querySelectorAll("tr").forEach(tr => {
     const i = +tr.dataset.i;
-    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => { CF[i][inp.dataset.k] = inp.dataset.k === "n" ? inp.value : (parseFloat(inp.value)||0); calc(); }));
-    tr.querySelector(".del").addEventListener("click", () => { CF.splice(i,1); renderCF(); calc(); });
+    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => { arr[i][inp.dataset.k] = inp.dataset.k === "n" ? inp.value : (parseFloat(inp.value)||0); calc(); }));
+    tr.querySelector(".del").addEventListener("click", () => { arr.splice(i,1); renderCF(lista, body); calc(); });
   });
 }
-$("cfReset").addEventListener("click", () => { CF = DEF.cf.map(c => ({...c})); renderCF(); calc(); });
-$("cfAdd").addEventListener("click", () => { CF.push({n:"Novo gasto", v:0}); renderCF(); calc(); $("cfBody").querySelector("tr:last-child .nm").select(); });
+$("cf3Add").addEventListener("click", () => { CF3.push({n:"Novo gasto", v:0}); renderCF("cf3","cf3Body"); calc(); $("cf3Body").querySelector("tr:last-child .nm").select(); });
+$("cf12Add").addEventListener("click", () => { CF12.push({n:"Novo gasto", v:0}); renderCF("cf12","cf12Body"); calc(); $("cf12Body").querySelector("tr:last-child .nm").select(); });
 
+// ---------- Faixas ----------
+function renderFX(){
+  $("fxBody").innerHTML = FX.map((f,i) => `<tr data-i="${i}">
+    <td><input class="nm" data-k="n" value="${esc(f.n)}"></td>
+    <td><input type="number" data-k="min" step="any" min="0" value="${f.min}"></td>
+    <td class="rng">–</td>
+    <td><input type="number" data-k="v" step="0.01" min="0" value="${f.v}"></td>
+    <td><button type="button" class="del" title="Remover faixa" ${FX.length<2?"disabled":""}>×</button></td>
+  </tr>`).join("");
+  $("fxBody").querySelectorAll("tr").forEach(tr => {
+    const i = +tr.dataset.i;
+    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => {
+      FX[i][inp.dataset.k] = inp.dataset.k === "n" ? inp.value : (parseFloat(inp.value) || 0); calc();
+    }));
+    tr.querySelector(".del").addEventListener("click", () => { FX.splice(i,1); renderFX(); calc(); });
+  });
+}
+$("fxAdd").addEventListener("click", () => {
+  const menor = FX.reduce((m,f) => Math.min(m, +f.min||0), Infinity), crit = $("fxCrit").value;
+  const min = isFinite(menor) ? Math.max(0, crit === "pct" ? menor - 10 : Math.round(menor*.8)) : (crit === "pct" ? 100 : v("baseRef"));
+  FX.push({n:`Faixa ${FX.length+1}`, min, v:0}); renderFX(); calc();
+  const ins = $("fxBody").querySelectorAll("tr:last-child input"); if (ins[2]) ins[2].focus();
+});
+$("fxReset").addEventListener("click", () => {
+  FX = clone(DEF.faixas); $("fxCrit").value = "pct"; $("fxModo").value = "fechada";
+  $("fRev").value = DEF.fRev; $("exc").value = DEF.exc; renderFX(); calc();
+});
+$("fxCrit").addEventListener("change", () => {
+  const ref = Math.max(1, v("baseRef"));
+  FX.forEach(f => f.min = $("fxCrit").value === "qtd" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round((+f.min||0)/ref*1000)/10);
+  renderFX(); calc();
+});
+
+// ---------- Equipe ----------
+const opts = (obj, sel) => Object.entries(obj).map(([k,l]) => `<option value="${k}" ${k===sel?"selected":""}>${l}</option>`).join("");
+function renderTeam(){
+  $("teamList").innerHTML = TEAM.map((t,i) => `<div class="cargo" data-i="${i}">
+    <div class="cargo-top">
+      <span class="lvl">${t.nivel === "G" ? "Gestão" : t.nivel}</span>
+      <input data-k="nome" value="${esc(t.nome)}" placeholder="Nome do cargo">
+      <button type="button" class="del" title="Remover cargo">×</button>
+    </div>
+    <div class="grid">
+      <label class="f">Nível<select data-k="nivel">${opts(NIVEIS, t.nivel)}</select></label>
+      <label class="f">Dimensionar por<select data-k="crit">${opts(CRITS, t.crit)}</select></label>
+      <label class="f">${CAPLBL[t.crit]}<input type="number" data-k="cap" step="any" min="0" value="${t.cap}" ${t.crit==="fixo"?"disabled":""}></label>
+      <label class="f">Carga horária (h/dia)<input type="number" data-k="carga" step="0.5" min="0" value="${t.carga}"></label>
+      <label class="f">Cobertura exigida (h/dia)<input type="number" data-k="cob" step="1" min="0" max="24" value="${t.cob}" ${t.crit==="fixo"?"disabled":""}></label>
+      <label class="f">${t.crit==="fixo"?"Quantidade":"Quantidade mínima"}<input type="number" data-k="min" step="1" min="0" value="${t.min}"></label>
+      <label class="f">Salário (R$)<input type="number" data-k="sal" step="100" min="0" value="${t.sal}"></label>
+      <label class="f">Encargos (%)<input type="number" data-k="enc" step="1" min="0" value="${t.enc}"></label>
+      <label class="f">Benefícios (R$/mês)<input type="number" data-k="ben" step="50" min="0" value="${t.ben}"></label>
+    </div>
+    <textarea data-k="atrib" rows="2" placeholder="O que esse cargo faz">${esc(t.atrib||"")}</textarea>
+    <div class="cargo-res"></div>
+  </div>`).join("");
+  $("teamList").querySelectorAll(".cargo").forEach(card => {
+    const i = +card.dataset.i;
+    card.querySelectorAll("[data-k]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+      const k = el.dataset.k;
+      TEAM[i][k] = ["nome","atrib","nivel","crit"].includes(k) ? el.value : (parseFloat(el.value) || 0);
+      if (el.tagName === "SELECT") renderTeam();
+      calc();
+    }));
+    card.querySelector(".del").addEventListener("click", () => { TEAM.splice(i,1); renderTeam(); calc(); });
+  });
+}
+$("teamAdd").addEventListener("click", () => {
+  TEAM.push({nome:"Novo cargo", nivel:"N1", crit:"ch1", cap:40, carga:8, cob:0, min:1, sal:3000, enc:80, ben:900, atrib:""});
+  renderTeam(); calc();
+  const c = $("teamList").lastElementChild; c.scrollIntoView({behavior:"smooth", block:"center"}); c.querySelector("[data-k=nome]").select();
+});
+$("teamReset").addEventListener("click", () => { TEAM = clone(DEF.team); CF12 = clone(DEF.cf12); renderTeam(); renderCF("cf12","cf12Body"); calc(); });
+
+// ---------- Estado ----------
 function load(st){
-  NUMS.forEach(k => $(k).value = st[k]);
-  SELS.forEach(k => $(k).value = st[k]);
+  NUMS.forEach(k => $(k).value = st[k] ?? DEF[k]);
+  SELS.forEach(k => $(k).value = st[k] ?? DEF[k]);
   if (Array.isArray(st.ufData) && st.ufData.length) UFS = st.ufData.map(u => [String(u[0]), +u[1]||0]);
   renderUFs(st.ufs || []);
-  CF = (Array.isArray(st.cf) ? st.cf : DEF.cf).map(c => ({n:String(c.n??""), v:+c.v||0}));
-  renderCF();
+  const lista = (x, d, f) => (Array.isArray(x) && x.length ? x : d).map(f);
+  CF3 = lista(st.cf3, DEF.cf3, c => ({n:String(c.n??""), v:+c.v||0}));
+  CF12 = lista(st.cf12, DEF.cf12, c => ({n:String(c.n??""), v:+c.v||0}));
+  FX = lista(st.faixas, DEF.faixas, f => ({n:String(f.n??""), min:+f.min||0, v:+f.v||0}));
+  TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t,
+    nivel: NIVEIS[t.nivel] ? t.nivel : "N1", crit: CRITS[t.crit] ? t.crit : "fixo"}));
+  renderCF("cf3","cf3Body"); renderCF("cf12","cf12Body"); renderFX(); renderTeam();
+  setTab(["n3","n12","tot"].includes(st.tab) ? st.tab : "n3");
 }
 function state(){
-  const st = {}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
+  const st = {tab}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
   st.ufs = [...$("ufs").querySelectorAll("[data-i]")].filter(c=>c.checked).map(c=>UFS[+c.dataset.i][0]);
-  st.ufData = UFS; st.cf = CF;
+  st.ufData = UFS; st.cf3 = CF3; st.cf12 = CF12; st.faixas = FX; st.team = TEAM;
   return st;
 }
 
-let ultimoSug = {liqOS:0, brutoOS:0};
-
-function calc(){
-
-  const imp = Math.min(Math.max(v("imp"),0),99)/100;
-  const base = Math.max(0, Math.round(v("base")));
-  const meses = Math.max(1, v("meses"));
-
-  // ---------- Volume e preço ----------
-  const pAb = v("pAb")/100;
-  const os = base*pAb;
+// ---------- Cálculo N3 ----------
+function calcN3(base, imp){
+  const pAb = v("pAb")/100, os = base*pAb;
   const alvo = v("alvo");
   const brutoOS = $("alvoTipo").value === "liq" ? alvo/(1-imp) : alvo;
   const liqOS = brutoOS*(1-imp);
-  const fat = os*brutoOS;
-  const vSite = base ? fat/base : 0;
+  const fat = os*brutoOS, vSite = base ? fat/base : 0;
+  const terc = v("terc");
+  const cf = CF3.reduce((s,c) => s + (+c.v||0), 0);
+  const parceiro = os*terc;
+  const custo = parceiro + cf;
+  const impostos = fat*imp, liq = fat - impostos, res = liq - custo;
 
   $("o_os").textContent = n1(os);
   $("o_bos").textContent = brl(brutoOS);
@@ -445,83 +610,200 @@ function calc(){
   $("o_site").textContent = brl(vSite);
   $("o_fat").textContent = brl(fat);
   $("n3note").innerHTML = `${n1(os)} OS/mês × ${brl(brutoOS)} = <b>${brl(fat)}</b> por mês (${brl(liqOS)} líquido por OS). Diluído na base, equivale a <b>${brl(vSite)}</b> por site/mês.`;
-
-  // ---------- Custos ----------
-  const cfTot = CF.reduce((s,c) => s + (+c.v||0), 0);
-  $("cfTotal").textContent = brl(cfTot);
-  const varU = v("terc");
-  const varTot = os*varU;
-  const custoTot = cfTot + varTot;
-  const custoOS = os > 0 ? custoTot/os : NaN;
-  const margem = Math.min(Math.max(v("margem"),0),95)/100;
-  const minF = c => c/(1-imp), sugF = c => c/((1-imp)*(1-margem));
-
-  $("r_cf").textContent = brl(cfTot);
-  $("r_var").textContent = `${brl(varTot)}`;
-  $("r_tot").textContent = brl(custoTot);
-  $("r_cos").textContent = brl(custoOS);
-  $("r_csite").textContent = brl(base ? custoTot/base : 0);
-
-  $("p_minOS").textContent = brl(minF(custoOS));
-  $("p_minSite").textContent = brl(base ? minF(custoTot)/base : 0);
-  $("p_minMes").textContent = brl(minF(custoTot));
-  $("p_sugLbl").textContent = `Preço sugerido (margem ${n0(margem*100)}%)`;
-  $("p_sugOS").textContent = brl(sugF(custoOS));
-  $("p_sugSite").textContent = brl(base ? sugF(custoTot)/base : 0);
-  $("p_sugMes").textContent = brl(sugF(custoTot));
-  $("p_atuOS").textContent = brl(os ? fat/os : brutoOS);
-  $("p_atuSite").textContent = brl(vSite);
-  $("p_atuMes").textContent = brl(fat);
-  ultimoSug = {brutoOS: sugF(custoOS), liqOS: sugF(custoOS)*(1-imp)};
-  const cobre = fat >= minF(custoTot) - 0.005;
-  $("p_status").innerHTML = os > 0 ? (cobre ? `<span class="badge ok">Seu preço cobre o custo</span>` : `<span class="badge bad">Seu preço está abaixo do custo</span>`) : "";
-  $("refNote").innerHTML = os > 0
-    ? `Cada OS custa ${brl(varU)} do parceiro + ${brl(cfTot/os)} de gastos fixos rateados = <b>${brl(custoOS)}</b>. Seu lucro bruto por OS antes dos fixos é ${brl(liqOS - varU)} (${brl(liqOS)} líquido − ${brl(varU)} do parceiro). ` +
-      (liqOS - varU > 0 ? `Os gastos fixos se pagam a partir de <b>${n1(cfTot/(liqOS - varU))} OS/mês</b>.` : `<span class="warn">O líquido por OS não cobre nem o valor do parceiro.</span>`)
+  $("cf3Total").textContent = brl(cf);
+  const custoOS = os ? custo/os : NaN, sobra = liqOS - terc;
+  $("n3cost").innerHTML = os > 0
+    ? `Cada OS custa ${brl(terc)} do parceiro + ${brl(cf/os)} de gastos fixos rateados = <b>${brl(custoOS)}</b>. Sobram ${brl(sobra)} por OS antes dos fixos. ` +
+      (sobra > 0 ? `Os gastos fixos se pagam a partir de <b>${n1(cf/sobra)} OS/mês</b>.` : `<span class="warn">O líquido por OS não cobre nem o valor do parceiro.</span>`)
     : `Sem OS previstas — ajuste a base ou o % de abertura.`;
 
-  // ---------- Sensibilidade ----------
   const mults = [0.25,0.5,0.75,1,1.25,1.5,2,3];
   $("sens").innerHTML = mults.map(m => {
-    const osR = os*m;
-    const cR = cfTot + osR*varU;
-    const lOS = osR*liqOS, rOS = lOS - cR;
+    const osR = os*m, cR = cf + osR*terc, lR = osR*liqOS, rR = lR - cR;
     return `<tr class="${m===1?"hl":""}">
       <td>${(pAb*m*100).toLocaleString("pt-BR",{maximumFractionDigits:2})}%${m===1?" (previsto)":""}</td>
-      <td>${n1(osR)}</td><td>${brl(cR)}</td>
-      <td>${brl(lOS)}</td><td>${osR?brl(cR/osR):"–"}</td><td class="${rOS<0?"neg":"pos"}">${brl(rOS)}</td>
-    </tr>`;
+      <td>${n1(osR)}</td><td>${brl(cR)}</td><td>${brl(lR)}</td><td>${osR?brl(cR/osR):"–"}</td><td class="${cls(rR)}">${brl(rR)}</td></tr>`;
   }).join("");
-  $("sensnote").innerHTML = `A receita acompanha o volume de OS, mas os gastos fixos continuam — com volume baixo, cada OS fica mais cara e o resultado pode virar prejuízo.`;
 
-  // ---------- Resumo ----------
-  const impostos = fat*imp, liq = fat - impostos;
-  const res = liq - cfTot - varTot;
-  $("s_bruto").textContent = brl(fat);
-  $("s_imp").textContent = brl(-impostos);
-  $("s_liq").textContent = brl(liq);
-  $("s_cf").textContent = brl(-cfTot);
-  $("s_var").textContent = brl(-varTot);
+  return {os, brutoOS, liqOS, fat, impostos, liq, parceiro, cf, custo, res, vSite};
+}
+
+// ---------- Cálculo N1 + N2 ----------
+function calcN12(base, imp){
+  const ref = Math.max(1, v("baseRef"));
+  const pct = base/ref;
+  const crit = $("fxCrit").value, modoFx = $("fxModo").value;
+  const fRev = v("fRev"), exc = v("exc");
+  $("fxColMin").textContent = crit === "pct" ? "A partir de (% da base)" : "A partir de (sites)";
+  const tiers = FX.map((f,i) => ({i, n:f.n||`Faixa ${i+1}`, v:+f.v||0,
+      thr: Math.max(0, crit === "pct" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round(+f.min||0))}))
+    .sort((a,b) => b.thr - a.thr);
+  const ativas = new Set();
+  let faixa, fat, extra = "";
+  if (modoFx === "fechada") {
+    const t = tiers.find(t => base >= t.thr);
+    if (t) {
+      faixa = t.n; ativas.add(t.i);
+      if (exc > 0 && base > ref) { fat = ref*t.v + (base-ref)*exc; extra = ` ${n0(base-ref)} sites acima da referência cobrados a ${brl(exc)}.`; }
+      else fat = base*t.v;
+      extra = ` Todos os ${n0(base)} sites a ${brl(t.v)}.` + extra;
+    } else {
+      faixa = "Abaixo da menor faixa"; fat = base*fRev;
+      extra = ` <span class="warn">Base abaixo da menor faixa — usado o valor de “Abaixo da menor faixa” (${brl(fRev)}).</span>`;
+    }
+  } else {
+    const asc = tiers.slice().reverse(), partes = []; fat = 0;
+    const abaixo = Math.min(base, asc.length ? asc[0].thr : base);
+    if (abaixo > 0) { fat += abaixo*fRev; partes.push(`${n0(abaixo)} × ${brl(fRev)} (abaixo da menor faixa)`); }
+    asc.forEach((t,k) => {
+      const fim = k+1 < asc.length ? asc[k+1].thr : Infinity;
+      const q = Math.max(0, Math.min(base, fim) - t.thr);
+      if (q > 0) { fat += q*t.v; ativas.add(t.i); partes.push(`${n0(q)} × ${brl(t.v)} (${esc(t.n)})`); }
+    });
+    faixa = ativas.size ? `${ativas.size} faixa(s)` : "Abaixo da menor faixa";
+    extra = partes.length ? ` Composição: ${partes.join(" + ")}.` : "";
+  }
+  $("fxBody").querySelectorAll("tr").forEach(tr => {
+    const i = +tr.dataset.i, t = tiers.find(x => x.i === i), k = tiers.indexOf(t);
+    const sup = k > 0 ? tiers[k-1].thr - 1 : null;
+    tr.querySelector(".rng").textContent = sup === null ? `${n0(t.thr)} ou mais` : (sup < t.thr ? "sobreposta" : `${n0(t.thr)} a ${n0(sup)}`);
+    tr.classList.toggle("ativa", ativas.has(i));
+  });
+  const sN1 = Math.min(Math.max(v("n1Pct"),0),100)/100;
+  const fatN1 = fat*sN1, fatN2 = fat - fatN1;
+  $("o_pct").textContent = pc(pct);
+  $("o_faixa").textContent = faixa;
+  $("o_vsite").textContent = brl(base ? fat/base : 0);
+  $("o_m12").textContent = brl(fat);
+  $("n12note").innerHTML = `<b>${modoFx === "fechada" ? "Faixa fechada" : "Progressiva"}</b> · faixa aplicada: <b>${esc(faixa)}</b>.${extra}`;
+
+  // Volume e equipe
+  const diasOp = Math.max(1, v("diasOp")), diasTrab = Math.max(1, v("diasTrab")), fatD = diasOp/diasTrab;
+  const chamados = base*v("pAb12")/100, ch2 = chamados*v("pN2")/100;
+  const vol = {ch1:chamados/diasOp, ch2:ch2/diasOp};
+  $("volBox").innerHTML = `
+    <div><small>Chamados / mês</small><strong>${n1(chamados)}</strong></div>
+    <div><small>Chamados N1 / dia</small><strong>${n1(vol.ch1)}</strong></div>
+    <div><small>Escalados N2 / dia</small><strong>${n1(vol.ch2)}</strong></div>`;
+  const lv = {N1:{p:0,c:0}, N2:{p:0,c:0}, G:{p:0,c:0}};
+  const cards = $("teamList").querySelectorAll(".cargo");
+  TEAM.forEach((t,i) => {
+    let q, det = [];
+    if (t.crit === "fixo") { q = Math.max(0, Math.round(t.min||0)); det.push("quantidade fixa"); }
+    else {
+      let qVol = 0, qCob = 0;
+      if (t.crit === "sites") { if (t.cap > 0) { qVol = Math.ceil(base/t.cap - 1e-9); det.push(`${n0(base)} sites ÷ ${n0(t.cap)} ⇒ ${qVol}`); } }
+      else if (t.cap > 0) { qVol = Math.ceil(vol[t.crit]/t.cap*fatD - 1e-9); det.push(`demanda ${n1(vol[t.crit])}/dia ÷ ${n1(t.cap)} ⇒ ${qVol}`); }
+      if (t.cob > 0 && t.carga > 0) { qCob = Math.ceil(t.cob*diasOp/(t.carga*diasTrab) - 1e-9); det.push(`cobertura ${n1(t.cob)}h/dia ⇒ ${qCob}`); }
+      if (t.min > 0) det.push(`mínimo ${n0(t.min)}`);
+      q = Math.max(qVol, qCob, Math.round(t.min||0));
+      if ((t.crit === "ch1" || t.crit === "ch2") && q > 0 && t.cap > 0) det.push(`ocupação ${pc(vol[t.crit]*fatD/(q*t.cap))}`);
+    }
+    const unit = (t.sal||0)*(1+(t.enc||0)/100) + (t.ben||0), tot = q*unit;
+    const L = lv[t.nivel] || lv.G; L.p += q; L.c += tot;
+    if (cards[i]) cards[i].querySelector(".cargo-res").innerHTML =
+      `<b>${q} ${q===1?"pessoa":"pessoas"}</b><b>${brl(tot)}/mês</b><span>${brl(unit)} por pessoa (salário + encargos + benefícios) · ${det.join(" · ")}</span>`;
+  });
+  const cf = CF12.reduce((s,c) => s + (+c.v||0), 0);
+  $("cf12Total").textContent = brl(cf);
+  const estrutura = cf + lv.G.c, opP = lv.N1.p + lv.N2.p;
+  const margem = Math.min(Math.max(v("margem12"),0),95)/100;
+  const minP = c => c/(1-imp), sugP = c => c/((1-imp)*(1-margem));
+  const custoNiv = {};
+  const linhas = ["N1","N2"].map(k => {
+    const rat = opP ? estrutura*lv[k].p/opP : (k === "N1" ? estrutura : 0);
+    const c = lv[k].c + rat; custoNiv[k] = c;
+    return `<tr><td>${NIVEIS[k]}</td><td>${lv[k].p}</td><td>${brl(lv[k].c)}</td><td>${brl(rat)}</td><td>${brl(c)}</td><td>${brl(base?c/base:0)}</td><td>${brl(base?minP(c)/base:0)}</td><td>${brl(base?sugP(c)/base:0)}</td></tr>`;
+  });
+  const custo = custoNiv.N1 + custoNiv.N2;
+  const pessoas = lv.N1.p + lv.N2.p + lv.G.p;
+  linhas.push(`<tr class="tot"><td>Total (inclui ${lv.G.p} em gestão)</td><td>${pessoas}</td><td>${brl(lv.N1.c+lv.N2.c+lv.G.c)}</td><td>${brl(cf)} fixos</td><td>${brl(custo)}</td><td>${brl(base?custo/base:0)}</td><td>${brl(base?minP(custo)/base:0)}</td><td>${brl(base?sugP(custo)/base:0)}</td></tr>`);
+  $("teamRes").innerHTML = linhas.join("");
+  const preco = base ? fat/base : 0, minS = base ? minP(custo)/base : 0;
+  $("teamNote").innerHTML = `Custo de ${brl(custo)}/mês. Para empatar, precisa cobrar <b>${brl(minS)}</b> por site; com ${n0(margem*100)}% de margem, <b>${brl(base?sugP(custo)/base:0)}</b>. Preço atual das faixas: <b>${brl(preco)}</b> por site ` +
+    (preco >= minS ? `<span class="badge ok">cobre o custo</span>` : `<span class="badge bad">abaixo do custo</span>`);
+
+  const impostos = fat*imp, liq = fat - impostos, res = liq - custo;
+  return {fat, fatN1, fatN2, impostos, liq, custo, custoN1:custoNiv.N1, custoN2:custoNiv.N2, pessoal:lv.N1.c+lv.N2.c+lv.G.c, cf, res, pessoas, setup:v("setup"), chamados};
+}
+
+// ---------- Resumo lateral ----------
+function linha(rot, val, total){ return `<div class="line${total?" total":""}"><span>${rot}</span><span>${val}</span></div>`; }
+function resumo(titulo, linhas, res, liq, extra, how){
+  $("sumTitle").textContent = titulo;
+  $("sumLines").innerHTML = linhas.join("");
   $("s_res").textContent = brl(res);
   $("s_res").style.color = res < 0 ? "var(--bad)" : "var(--ok)";
   const mg = liq ? res/liq : 0;
-  $("s_badge").innerHTML = res < 0 ? `<span class="badge bad">Prejuízo</span>` :
-    `<span class="badge ${mg<.15?"warn":"ok"}">Margem ${pc(mg)} sobre a receita líquida</span>`;
-  $("s_resOS").textContent = brl(os ? res/os : NaN);
-  $("s_ctlbl").textContent = `Contrato ${meses} meses (bruto)`;
-  $("s_ct").textContent = brl(fat*meses);
-  $("s_ctres").textContent = brl(res*meses);
+  $("s_badge").innerHTML = res < 0 ? `<span class="badge bad">Prejuízo</span>` : `<span class="badge ${mg<.15?"warn":"ok"}">Margem ${pc(mg)} sobre a receita líquida</span>`;
+  $("sumExtra").innerHTML = extra.join("");
+  $("howBox").innerHTML = `<b style="color:var(--ink)">Como os cálculos funcionam</b><br>` + how;
+}
+
+function calc(){
+  const imp = Math.min(Math.max(v("imp"),0),99)/100;
+  const base = Math.max(0, Math.round(v("base")));
+  const meses = Math.max(1, v("meses"));
+  const A = calcN3(base, imp);
+  const B = calcN12(base, imp);
+
+  // ---------- Consolidado ----------
+  const impF = x => x*imp;
+  const rows = [
+    {k:"N1 — NOC", fat:B.fatN1, custo:B.custoN1, cor:"#1f5fd1"},
+    {k:"N2 — Suporte remoto", fat:B.fatN2, custo:B.custoN2, cor:"#7a5af8"},
+    {k:"N3 — Campo", fat:A.fat, custo:A.custo, cor:"#0e9384"}
+  ].map(r => ({...r, imp:impF(r.fat), liq:r.fat-impF(r.fat), res:r.fat-impF(r.fat)-r.custo}));
+  const T = rows.reduce((s,r) => ({fat:s.fat+r.fat, imp:s.imp+r.imp, liq:s.liq+r.liq, custo:s.custo+r.custo, res:s.res+r.res}), {fat:0,imp:0,liq:0,custo:0,res:0});
+  const tr = (r, c) => `<tr class="${c||""}"><td>${r.k}</td><td>${brl(r.fat)}</td><td>${brl(-r.imp)}</td><td>${brl(r.liq)}</td><td>${brl(-r.custo)}</td><td class="${cls(r.res)}">${brl(r.res)}</td><td>${r.liq?pc(r.res/r.liq):"–"}</td><td>${brl(base?r.fat/base:0)}</td></tr>`;
+  $("totBody").innerHTML = rows.map(r => tr(r)).join("") + tr({k:"Total", ...T}, "tot");
+  $("totBar").innerHTML = T.fat > 0 ? rows.map(r => `<span style="width:${r.fat/T.fat*100}%;background:${r.cor}" title="${r.k}: ${brl(r.fat)}"></span>`).join("") : "";
+  $("totLegend").innerHTML = rows.map(r => `<span><i style="background:${r.cor}"></i>${r.k} · ${T.fat?pc(r.fat/T.fat):"–"}</span>`).join("");
+  const setupB = B.setup, setupL = setupB*(1-imp);
+  const ctr = (k, fat, liq, custo, res, c) => `<tr class="${c||""}"><td>${k}</td><td>${brl(fat)}</td><td>${brl(liq)}</td><td>${brl(-custo)}</td><td class="${cls(res)}">${brl(res)}</td></tr>`;
+  $("ctBody").innerHTML =
+    ctr(`N1 + N2 (${meses} meses)`, B.fat*meses, B.liq*meses, B.custo*meses, B.res*meses) +
+    ctr(`N3 — Campo (${meses} meses)`, A.fat*meses, A.liq*meses, A.custo*meses, A.res*meses) +
+    ctr("Setup (valor único)", setupB, setupL, 0, setupL) +
+    ctr("Total do contrato", T.fat*meses + setupB, T.liq*meses + setupL, T.custo*meses, T.res*meses + setupL, "tot");
+  $("totNote").innerHTML = `Faturamento total de <b>${brl(T.fat)}</b> por mês, equivalente a <b>${brl(base?T.fat/base:0)}</b> por site. ` +
+    `N1 + N2 respondem por ${T.fat?pc(B.fat/T.fat):"–"} do faturamento e o campo por ${T.fat?pc(A.fat/T.fat):"–"}.`;
+
+  // ---------- Resumo da aba ativa ----------
+  if (tab === "n3") {
+    resumo("Resumo mensal · N3", [
+      linha("Faturamento bruto", brl(A.fat), true), linha("(−) Impostos", brl(-A.impostos)), linha("Receita líquida", brl(A.liq)),
+      linha("(−) Parceiro", brl(-A.parceiro)), linha("(−) Gastos fixos", brl(-A.cf))
+    ], A.res, A.liq, [
+      linha("OS por mês", n1(A.os)), linha("Resultado por OS", brl(A.os ? A.res/A.os : NaN)),
+      linha(`Contrato ${meses} meses (bruto)`, brl(A.fat*meses)), linha("Resultado no contrato", brl(A.res*meses))
+    ], `OS/mês = base × % de abertura de chamados de campo.<br>Bruto = líquido ÷ (1 − imposto).<br>Custo = OS × valor do parceiro + gastos fixos.<br>Equivalente por site = faturamento ÷ base.`);
+  } else if (tab === "n12") {
+    resumo("Resumo mensal · N1 + N2", [
+      linha("Faturamento bruto", brl(B.fat), true), linha("(−) Impostos", brl(-B.impostos)), linha("Receita líquida", brl(B.liq)),
+      linha("(−) Pessoal", brl(-B.pessoal)), linha("(−) Gastos fixos", brl(-B.cf))
+    ], B.res, B.liq, [
+      linha("Pessoas na equipe", B.pessoas), linha("Chamados por mês", n1(B.chamados)),
+      linha("Setup (bruto)", brl(B.setup)),
+      linha(`Contrato ${meses} meses + setup`, brl(B.fat*meses + B.setup)), linha("Resultado no contrato", brl(B.res*meses + B.setup*(1-imp)))
+    ], `Faturamento = sites × valor da faixa.<br>Pessoas = maior entre demanda, cobertura de horário e mínimo.<br>Gestão e gastos fixos são rateados entre N1 e N2 por número de pessoas.<br>Preço mínimo = custo ÷ (1 − imposto) ÷ base.`);
+  } else {
+    resumo("Resumo mensal · Consolidado", [
+      linha("N1 — NOC", brl(B.fatN1)), linha("N2 — Suporte remoto", brl(B.fatN2)), linha("N3 — Campo", brl(A.fat)),
+      linha("Faturamento bruto", brl(T.fat), true), linha("(−) Impostos", brl(-T.imp)), linha("Receita líquida", brl(T.liq)),
+      linha("(−) Custos N1 + N2", brl(-B.custo)), linha("(−) Custos N3", brl(-A.custo))
+    ], T.res, T.liq, [
+      linha("Valor total por site/mês", brl(base ? T.fat/base : 0)), linha("Setup (bruto)", brl(setupB)),
+      linha(`Contrato ${meses} meses + setup`, brl(T.fat*meses + setupB)), linha("Resultado no contrato", brl(T.res*meses + setupL))
+    ], `Soma das abas N1 + N2 e N3, com a mesma base e o mesmo % de imposto.<br>O setup entra uma única vez no total do contrato.`);
+  }
 
   try { history.replaceState(null,"","#"+encodeURIComponent(JSON.stringify(state()))); } catch(e){}
 }
 
-$("btnUsarSug").addEventListener("click", () => {
-  const val = $("alvoTipo").value === "liq" ? ultimoSug.liqOS : ultimoSug.brutoOS;
-  if (isFinite(val)) { $("alvo").value = Math.ceil(val*100)/100; calc(); }
-});
 document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", calc));
 document.querySelectorAll("select").forEach(el => el.addEventListener("change", calc));
-$("btnReset").addEventListener("click", () => { load(DEF); calc(); });
+$("btnReset").addEventListener("click", () => { load({...DEF, tab}); calc(); });
 $("btnLink").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(location.href); $("btnLink").textContent = "Link copiado!"; }
   catch(e){ $("btnLink").textContent = "Copie a URL do navegador"; }
