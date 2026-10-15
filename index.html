@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Calculadora N1 · N2 · N3</title>
-<meta name="description" content="Simulador de precificação de NOC (N1), suporte remoto (N2) e atendimento de campo (N3).">
+<title>Calculadora de Campo N3</title>
+<meta name="description" content="Simulador de precificação do atendimento de campo (N3): por ordem de serviço ou valor fixo sobre a base, com equipe e estrutura.">
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--ink:#14213d;--muted:#5b6478;--line:#dfe4ee;--brand:#0f2a5c;--accent:#1f5fd1;--accent-ink:#fff;--ok:#127a3e;--warn:#a35f00;--bad:#b42318;--soft:#eef2f9}
 @media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--ink:#e6edf3;--muted:#9aa4b2;--line:#2b3340;--brand:#13244a;--accent:#4c8dff;--accent-ink:#fff;--ok:#3fb950;--warn:#d29922;--bad:#f85149;--soft:#1c2330}}
@@ -21,13 +21,15 @@ main.wrap{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:20px;paddin
 @media(max-width:960px){main.wrap{grid-template-columns:minmax(0,1fr)}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
 .card h2{font-size:16px;margin:0 0 2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.h3{font-size:14px;margin:20px 0 10px}
 .tag{font-size:11px;font-weight:600;background:var(--soft);color:var(--accent);border-radius:20px;padding:2px 9px}
 .sub{color:var(--muted);font-size:13px;margin:2px 0 14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted)}
 label.f small{font-size:11.5px;opacity:.85}
 input[type=number],select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
-input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input:disabled{opacity:.5}
 .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
 .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:12px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:14px;flex-wrap:wrap}
@@ -41,6 +43,9 @@ th{font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--mut
 th:first-child,td:first-child{text-align:left}
 tr.hl td{background:var(--soft);font-weight:600}
 td.pos{color:var(--ok)} td.neg{color:var(--bad)}
+table.fx td{padding:5px 6px}
+table.fx input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 8px;width:100%;min-width:90px;text-align:right}
+table.fx input.nm{text-align:left;min-width:160px}
 .ufs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin:4px 0 12px}
 .uf{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer}
 .uf span{color:var(--muted);font-size:12px}
@@ -51,6 +56,25 @@ td.pos{color:var(--ok)} td.neg{color:var(--bad)}
 .mini div{border:1px solid var(--line);border-radius:9px;padding:9px 11px}
 .mini small{display:block;color:var(--muted);font-size:11.5px}
 .mini strong{font-size:16px}
+.mini div.key{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.imp{border:1px dashed var(--line);border-radius:10px;padding:12px;margin-bottom:12px;background:var(--bg)}
+.imp-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13.5px}
+.imp-head span{color:var(--muted);font-size:12.5px}
+.btn{display:inline-block;font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical}
+.imp-status{font-size:12.5px;color:var(--muted)}
+.imp-status.ok{color:var(--ok)} .imp-status.err{color:var(--bad)}
+.cargo{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)}
+.cargo-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.cargo-top input{flex:1;font:inherit;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.cargo .grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.cargo input[type=number],.cargo select{background:var(--card)}
+.cargo textarea{font-family:inherit;font-size:12.5px;margin-top:10px}
+.cargo-res{margin-top:10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
+.cargo-res b{font-size:15px}
+.cargo-res span{color:var(--muted)}
+.del{border:0;background:transparent;color:var(--bad);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
 aside .sticky{position:sticky;top:16px}
 .sum h2{margin-bottom:12px}
 .line{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
@@ -64,42 +88,16 @@ aside .sticky{position:sticky;top:16px}
 .badge.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
 .badge.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
-.imp{border:1px dashed var(--line);border-radius:10px;padding:12px;margin-bottom:12px;background:var(--bg)}
-.imp-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;font-size:13.5px}
-.imp-head span{color:var(--muted);font-size:12.5px}
-.btn{display:inline-block;font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:7px 12px;cursor:pointer}
-.btn.ghost{background:transparent;color:var(--accent)}
-textarea{width:100%;font:13px/1.4 ui-monospace,Consolas,monospace;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical}
-.imp-status{font-size:12.5px;color:var(--muted)}
-.imp-status.ok{color:var(--ok)} .imp-status.err{color:var(--bad)}
-table.fx td{padding:5px 6px}
-table.fx input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 8px;width:100%;min-width:90px;text-align:right}
-table.fx input.nm{text-align:left;min-width:110px}
-table.fx tr.ativa td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
-table.fx .rng{color:var(--muted);font-size:12.5px}
-.del{border:0;background:transparent;color:var(--bad);font-size:18px;line-height:1;cursor:pointer;padding:2px 6px}
-.h3{font-size:14px;margin:20px 0 10px}
-.cargo{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)}
-.cargo-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-.cargo-top input{flex:1;font:inherit;font-weight:600;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
-.cargo .grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.cargo input[type=number],.cargo select{background:var(--card)}
-.cargo textarea{font:12.5px/1.4 inherit;font-family:inherit;margin-top:10px;background:var(--card)}
-.cargo-res{margin-top:10px;font-size:13px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
-.cargo-res b{font-size:15px}
-.cargo-res span{color:var(--muted)}
-.lvl{font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px;background:var(--soft);color:var(--accent);white-space:nowrap}
-tr.tot td{font-weight:700;border-top:2px solid var(--line)}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
-@media print{header .hbtn,.seg{display:none} aside .sticky{position:static} main.wrap{grid-template-columns:1fr}}
+@media print{header .hbtn,.seg,.btn,.del{display:none} aside .sticky{position:static} main.wrap{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div>
-      <h1>Calculadora de precificação · N1 · N2 · N3</h1>
-      <p>NOC (N1) · Suporte remoto (N2) · Atendimento de campo (N3) — base: proposta NOV-IUH-001/2026</p>
+      <h1>Calculadora de atendimento de campo · N3</h1>
+      <p>Quanto cobrar por ordem de serviço ou por site da base, a partir da equipe e da estrutura necessárias</p>
     </div>
     <div class="row" style="margin:0">
       <button class="hbtn" id="btnLink" type="button">Copiar link da simulação</button>
@@ -111,7 +109,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 <main class="wrap">
 <section>
 
-  <!-- BASE E IMPOSTOS -->
+  <!-- 1. BASE -->
   <div class="card">
     <h2>1. Base e impostos</h2>
     <p class="sub">Importe a planilha da base, selecione os estados ou digite a quantidade de sites diretamente.</p>
@@ -139,9 +137,6 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       <label class="f">Tamanho da base (sites / INEP)
         <input type="number" id="base" min="0" step="1">
       </label>
-      <label class="f">Base de referência (100%)
-        <input type="number" id="baseRef" min="1" step="1">
-      </label>
       <label class="f">% de imposto sobre faturamento
         <input type="number" id="imp" min="0" max="99" step="0.01">
         <small>Ex.: Lucro Presumido ≈ 16,33% (ISS 5 + PIS 0,65 + COFINS 3 + IRPJ 4,8 + CSLL 2,88)</small>
@@ -152,66 +147,10 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     </div>
   </div>
 
-  <!-- N1 / N2 -->
+  <!-- 2. VOLUME E PREÇO -->
   <div class="card">
-    <h2>2. N1 + N2 — NOC e suporte remoto <span class="tag">Proposta</span></h2>
-    <p class="sub">Valor mensal por site conforme a faixa em que a base se enquadra. Monte as faixas que quiser trabalhar.</p>
-    <div class="row">
-      <label class="chk"><input type="checkbox" id="inc1"> Incluir N1</label>
-      <label class="chk"><input type="checkbox" id="inc2"> Incluir N2</label>
-      <label class="chk"><input type="checkbox" id="n12Incl"> Valores por site já incluem impostos</label>
-    </div>
-
-    <div class="imp" style="background:var(--card)">
-      <div class="grid" style="margin-bottom:10px">
-        <label class="f">Faixas definidas por
-          <select id="fxCrit">
-            <option value="pct">% da base de referência</option>
-            <option value="qtd">Quantidade de sites</option>
-          </select>
-        </label>
-        <label class="f">Forma de cobrança
-          <select id="fxModo">
-            <option value="fechada">Faixa fechada — todos os sites no valor da faixa</option>
-            <option value="progressiva">Progressiva — cada faixa cobra só os sites dentro dela</option>
-          </select>
-        </label>
-      </div>
-      <div class="tablewrap">
-        <table class="fx">
-          <thead><tr><th>Nome</th><th id="fxColMin">A partir de (%)</th><th>Intervalo (sites)</th><th>R$ / site / mês</th><th></th></tr></thead>
-          <tbody id="fxBody"></tbody>
-        </table>
-      </div>
-      <div class="row" style="margin:10px 0 0">
-        <button type="button" class="btn" id="fxAdd">+ Adicionar faixa</button>
-        <button type="button" class="btn ghost" id="fxReset">Restaurar faixas da proposta</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <label class="f">Abaixo da menor faixa (R$/site)<input type="number" id="fRev" step="0.01" min="0"><small>Revisão comercial — valor a negociar</small></label>
-      <label class="f">Sites acima da referência (R$/site)<input type="number" id="exc" step="0.01" min="0"><small>Só na faixa fechada. 0 = usa o valor da faixa (item 4.5)</small></label>
-      <label class="f">Setup (R$)<input type="number" id="setup" step="100" min="0"></label>
-      <label class="f">% do valor atribuído ao N1<input type="number" id="n1Pct" step="1" min="0" max="100"><small>Restante é N2 (apenas para separar no resumo)</small></label>
-      <label class="f">Custo operacional mensal N1/N2 (R$)<input type="number" id="custo12" step="100" min="0"><small id="custo12Hint">Opcional — ignorado quando a seção 4 (equipe) está ativa</small></label>
-    </div>
-    <div class="mini">
-      <div><small>% da base atendida</small><strong id="o_pct">–</strong></div>
-      <div><small>Faixa aplicada</small><strong id="o_faixa">–</strong></div>
-      <div><small>Valor médio por site</small><strong id="o_vsite">–</strong></div>
-      <div><small>Mensal N1+N2 (bruto)</small><strong id="o_m12">–</strong></div>
-    </div>
-    <div class="note" id="n12note"></div>
-  </div>
-
-  <!-- N3 -->
-  <div class="card">
-    <h2>3. N3 — Atendimento de campo <span class="tag">Nova oferta</span></h2>
+    <h2>2. Volume e forma de cobrança</h2>
     <p class="sub">Escolha como cobrar: por ordem de serviço executada ou valor fixo diluído em toda a base monitorada.</p>
-    <div class="row" style="margin-bottom:4px">
-      <label class="chk"><input type="checkbox" id="inc3"> Incluir N3</label>
-    </div>
     <div class="seg" role="tablist">
       <button type="button" data-mode="os">Cobrar por ordem de serviço</button>
       <button type="button" data-mode="base">Valor fixo sobre a base</button>
@@ -220,11 +159,11 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     <div class="grid">
       <label class="f">% de abertura de chamados (mês)
         <input type="number" id="pAb" step="0.1" min="0">
-        <small>Sobre a base. Proposta: até 5%</small>
+        <small>Sobre a base</small>
       </label>
       <label class="f">% dos chamados que viram OS de campo
         <input type="number" id="pCampo" step="1" min="0" max="100">
-        <small>Não resolvidos em N1/N2</small>
+        <small>Os que não se resolvem remotamente</small>
       </label>
       <label class="f">Quanto quero receber por OS (R$)
         <input type="number" id="alvo" step="1" min="0">
@@ -237,54 +176,46 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       </label>
       <label class="f" id="riscoBox">Margem de risco de volume (%)
         <input type="number" id="risco" step="1" min="0">
-        <small>Só no modelo sobre a base</small>
+        <small>Só no valor fixo sobre a base</small>
       </label>
-    </div>
-
-    <p class="sub" style="margin:16px 0 8px"><b style="color:var(--ink)">Custo estimado por OS</b> — para ver o resultado real de cada visita.</p>
-    <div class="grid">
-      <label class="f">Custo técnico (R$/hora)<input type="number" id="cH" step="1" min="0"></label>
-      <label class="f">Horas por visita<input type="number" id="hrs" step="0.25" min="0"></label>
-      <label class="f">Km médio (ida + volta)<input type="number" id="km" step="1" min="0"></label>
-      <label class="f">Custo por km (R$)<input type="number" id="rkm" step="0.01" min="0"></label>
-      <label class="f">Outros por OS (R$)<input type="number" id="outros" step="1" min="0"><small>Pedágio, alimentação, terceiro…</small></label>
     </div>
 
     <div class="mini">
       <div><small>Chamados / mês</small><strong id="o_ch">–</strong></div>
       <div><small>OS de campo / mês</small><strong id="o_os">–</strong></div>
+      <div><small>OS de campo / dia</small><strong id="o_osd">–</strong></div>
       <div><small>Preço bruto por OS</small><strong id="o_bos">–</strong></div>
       <div><small>Líquido por OS</small><strong id="o_los">–</strong></div>
-      <div><small>Custo por OS</small><strong id="o_cos">–</strong></div>
-      <div><small>Lucro por OS</small><strong id="o_lucos">–</strong></div>
-      <div><small>Equivalente por site/mês</small><strong id="o_n3site">–</strong></div>
-      <div><small>Mensal N3 (bruto)</small><strong id="o_mn3">–</strong></div>
+      <div><small>Equivalente por site/mês</small><strong id="o_site">–</strong></div>
+      <div class="key"><small>Faturamento mensal (bruto)</small><strong id="o_fat">–</strong></div>
     </div>
     <div class="note" id="n3note"></div>
   </div>
 
-  <!-- EQUIPE -->
+  <!-- 3. EQUIPE -->
   <div class="card">
-    <h2>4. Equipe e estrutura <span class="tag">Custos</span></h2>
-    <p class="sub">Monte os cargos, a capacidade de cada um e os gastos fixos. O tamanho da equipe é calculado a partir da base e do % de chamados, e vira a referência de quanto cobrar.</p>
+    <h2>3. Equipe, estrutura e custos <span class="tag">Custos</span></h2>
+    <p class="sub">Monte os cargos e a capacidade de cada um. A equipe é dimensionada a partir da base, do % de chamados e dos estados atendidos.</p>
 
-    <div class="row">
-      <label class="chk"><input type="checkbox" id="useTeam"> Usar os custos da equipe no resumo</label>
-    </div>
     <div class="grid">
       <label class="f">Dias de operação por mês<input type="number" id="diasOp" step="1" min="1"><small>22 = dias úteis · 30 = todos os dias</small></label>
       <label class="f">Dias trabalhados por pessoa/mês<input type="number" id="diasTrab" step="1" min="1"><small>Escala 5x2 ≈ 22</small></label>
-      <label class="f">% dos chamados escalados ao N2<input type="number" id="pN2" step="1" min="0" max="100"><small>O restante é resolvido no N1</small></label>
       <label class="f">Margem desejada (%)<input type="number" id="margem" step="1" min="0" max="95"><small>Sobre a receita líquida, para o preço sugerido</small></label>
     </div>
-
-    <div class="mini" id="volBox"></div>
 
     <h3 class="h3">Cargos</h3>
     <div id="teamList"></div>
     <div class="row" style="margin:10px 0 0">
       <button type="button" class="btn" id="teamAdd">+ Adicionar cargo</button>
       <button type="button" class="btn ghost" id="teamReset">Restaurar equipe padrão</button>
+    </div>
+
+    <h3 class="h3">Custo variável por OS</h3>
+    <div class="grid">
+      <label class="f">Pagamento a terceiro por OS (R$)<input type="number" id="terc" step="1" min="0"><small>Use quando a visita for terceirizada; 0 se for equipe própria</small></label>
+      <label class="f">Km médio por visita (ida + volta)<input type="number" id="km" step="1" min="0"></label>
+      <label class="f">Custo por km (R$)<input type="number" id="rkm" step="0.01" min="0"><small>Combustível, desgaste, reembolso</small></label>
+      <label class="f">Outros por OS (R$)<input type="number" id="outros" step="1" min="0"><small>Pedágio, alimentação, estacionamento…</small></label>
     </div>
 
     <h3 class="h3">Gastos fixos mensais</h3>
@@ -298,28 +229,48 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
     <div class="row" style="margin:10px 0 0">
       <button type="button" class="btn" id="cfAdd">+ Adicionar gasto</button>
     </div>
-
-    <h3 class="h3">Custo da operação e referência de preço</h3>
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>Nível</th><th>Pessoas</th><th>Pessoal</th><th>Rateio gestão + estrutura</th><th>Custo total/mês</th><th>Custo por site</th><th>Preço mínimo/site</th><th>Preço sugerido/site</th></tr></thead>
-        <tbody id="teamRes"></tbody>
-      </table>
-    </div>
-    <div class="note" id="teamNote"></div>
   </div>
 
-  <!-- SENSIBILIDADE -->
+  <!-- 4. QUANTO COBRAR -->
+  <div class="card">
+    <h2>4. Quanto cobrar <span class="tag">Referência</span></h2>
+    <p class="sub">Custo total da operação de campo e o preço necessário para cobrir esse custo, os impostos e a margem desejada.</p>
+    <div class="mini" style="margin-top:0">
+      <div><small>Pessoal</small><strong id="r_pes">–</strong></div>
+      <div><small>Gastos fixos</small><strong id="r_cf">–</strong></div>
+      <div><small>Variável (OS × custo/OS)</small><strong id="r_var">–</strong></div>
+      <div><small>Custo total / mês</small><strong id="r_tot">–</strong></div>
+      <div><small>Custo por OS</small><strong id="r_cos">–</strong></div>
+      <div><small>Custo por site/mês</small><strong id="r_csite">–</strong></div>
+    </div>
+    <div class="tablewrap" style="margin-top:14px">
+      <table>
+        <thead><tr><th></th><th>Por OS</th><th>Por site/mês</th><th>Mensal (bruto)</th></tr></thead>
+        <tbody>
+          <tr><td>Preço mínimo (empate)</td><td id="p_minOS">–</td><td id="p_minSite">–</td><td id="p_minMes">–</td></tr>
+          <tr class="hl"><td id="p_sugLbl">Preço sugerido</td><td id="p_sugOS">–</td><td id="p_sugSite">–</td><td id="p_sugMes">–</td></tr>
+          <tr><td>Seu preço atual</td><td id="p_atuOS">–</td><td id="p_atuSite">–</td><td id="p_atuMes">–</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="row" style="margin:12px 0 0">
+      <button type="button" class="btn" id="btnUsarSug">Usar preço sugerido</button>
+      <span id="p_status"></span>
+    </div>
+    <div class="note" id="refNote"></div>
+  </div>
+
+  <!-- 5. SENSIBILIDADE -->
   <div class="card">
     <h2>5. E se o volume de chamados variar?</h2>
-    <p class="sub">Compara o resultado mensal do N3 nos dois modelos quando a abertura real fica diferente da prevista.</p>
+    <p class="sub">Resultado mensal nos dois modelos quando a abertura real fica diferente da prevista. A equipe é redimensionada para cada volume.</p>
     <div class="tablewrap">
       <table>
         <thead>
           <tr>
-            <th>% abertura</th><th>OS/mês</th>
+            <th>% abertura</th><th>OS/mês</th><th>Pessoas</th><th>Custo total</th>
             <th>Por OS: líquido</th><th>Por OS: resultado</th>
-            <th>Base: líquido</th><th>Base: líq./OS</th><th>Base: resultado</th>
+            <th>Base: líquido</th><th>Base: resultado</th>
           </tr>
         </thead>
         <tbody id="sens"></tbody>
@@ -335,21 +286,20 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
   <div class="sticky">
     <div class="card sum">
       <h2>Resumo mensal</h2>
-      <div class="line"><span>N1 — NOC</span><span id="s_n1">–</span></div>
-      <div class="line"><span>N2 — Suporte remoto</span><span id="s_n2">–</span></div>
-      <div class="line"><span>N3 — Campo</span><span id="s_n3">–</span></div>
+      <div class="line"><span>Modelo</span><span id="s_modo">–</span></div>
       <div class="line total"><span>Faturamento bruto</span><span id="s_bruto">–</span></div>
       <div class="line"><span>(−) Impostos</span><span id="s_imp">–</span></div>
       <div class="line"><span>Receita líquida</span><span id="s_liq">–</span></div>
-      <div class="line"><span id="s_ccampoLbl">(−) Custo campo</span><span id="s_ccampo">–</span></div>
-      <div class="line"><span id="s_c12Lbl">(−) Custo N1/N2</span><span id="s_c12">–</span></div>
+      <div class="line"><span>(−) Pessoal</span><span id="s_pes">–</span></div>
+      <div class="line"><span>(−) Gastos fixos</span><span id="s_cf">–</span></div>
+      <div class="line"><span>(−) Variável por OS</span><span id="s_var">–</span></div>
       <div class="sep"></div>
       <div class="lbl">Resultado mensal</div>
       <div class="big" id="s_res">–</div>
       <div id="s_badge" style="margin-top:6px"></div>
       <div class="sep"></div>
-      <div class="line"><span>Valor total por site/mês</span><span id="s_site">–</span></div>
-      <div class="line"><span>Setup (bruto)</span><span id="s_setup">–</span></div>
+      <div class="line"><span>Pessoas na equipe</span><span id="s_pessoas">–</span></div>
+      <div class="line"><span>Resultado por OS</span><span id="s_resOS">–</span></div>
       <div class="line"><span id="s_ctlbl">Contrato</span><span id="s_ct">–</span></div>
       <div class="line"><span>Resultado no contrato</span><span id="s_ctres">–</span></div>
     </div>
@@ -357,13 +307,15 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       <b style="color:var(--ink)">Como os cálculos funcionam</b><br>
       OS/mês = base × % abertura × % campo.<br>
       Bruto = líquido ÷ (1 − imposto).<br>
-      Modelo por base: valor por site = OS previstas × bruto por OS × (1 + risco) ÷ base. A receita fica fixa e o risco de volume fica com você.
+      Custo total = pessoal + gastos fixos + OS × custo variável.<br>
+      Preço sugerido = custo ÷ (1 − imposto) ÷ (1 − margem).<br>
+      Valor fixo sobre a base = OS previstas × bruto por OS × (1 + risco) ÷ base. A receita fica fixa e o risco de volume fica com você.
     </div>
   </div>
 </aside>
 </main>
 
-<footer>Simulação de apoio comercial · valores de referência da proposta NOV-IUH-001/2026 · não substitui análise tributária</footer>
+<footer>Simulação de apoio comercial · não substitui análise tributária</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -373,34 +325,26 @@ const UFS_PROPOSTA = [
 ];
 let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
-  base:4399, baseRef:4399, imp:16.33, meses:24,
-  inc1:true, inc2:true, n12Incl:true,
-  fRev:68.60, exc:57.00, setup:280000, n1Pct:50, custo12:0,
-  fxCrit:"pct", fxModo:"fechada", faixas:[{n:"100%",min:100,v:54.35},{n:"80%",min:80,v:60.05},{n:"50%",min:50,v:68.60}],
-  inc3:true, mode:"os", pAb:5, pCampo:20, alvo:250, alvoTipo:"liq", risco:10,
-  cH:60, hrs:2, km:40, rkm:1.5, outros:20,
+  base:4399, imp:16.33, meses:24,
+  mode:"os", pAb:5, pCampo:20, alvo:250, alvoTipo:"liq", risco:10,
+  diasOp:22, diasTrab:22, margem:20,
+  terc:0, km:40, rkm:1.5, outros:20,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
-  useTeam:true, diasOp:22, diasTrab:22, pN2:40, margem:20,
   team:[
-    {nome:"Analista NOC N1", nivel:"N1", crit:"ch1", cap:40, carga:8, cob:12, min:0, sal:2800, enc:80, ben:900,
-     atrib:"Monitoramento contínuo dos equipamentos, detecção de falhas, abertura proativa de chamados, triagem, classificação e registro por INEP."},
-    {nome:"Analista de suporte N2", nivel:"N2", crit:"ch2", cap:12, carga:8, cob:8, min:0, sal:4500, enc:80, ben:900,
-     atrib:"Diagnóstico e resolução remota dos incidentes escalados, ajustes de configuração em roteadores, controladoras, APs e switches, encaminhamento para campo."},
-    {nome:"Coordenador de operação", nivel:"G", crit:"fixo", cap:0, carga:8, cob:0, min:1, sal:8000, enc:80, ben:1200,
-     atrib:"Gestão da equipe, escalas, indicadores e SLA, relacionamento com o cliente e relatórios mensais."}
+    {nome:"Técnico de campo", crit:"uf", cap:1, carga:8, cob:0, min:0, sal:3000, enc:80, ben:900,
+     atrib:"Atendimento presencial nas escolas: troca de equipamentos, reconfiguração local, testes de conectividade e registro da OS com evidências."},
+    {nome:"Coordenador de campo", crit:"fixo", cap:0, carga:8, cob:0, min:1, sal:6000, enc:80, ben:1000,
+     atrib:"Agenda e roteirização das visitas, acompanhamento de SLA, controle de equipamentos em trânsito e relatórios ao cliente."}
   ],
-  cf:[{n:"Aluguel do espaço",v:3000},{n:"Água",v:150},{n:"Luz",v:600},{n:"Internet",v:400},{n:"Ferramenta de monitoramento / licenças",v:1500},{n:"Equipamentos (notebooks, depreciação)",v:800}]
+  cf:[{n:"Aluguel do espaço",v:2000},{n:"Água",v:100},{n:"Luz",v:300},{n:"Internet",v:300},{n:"Celulares e chips dos técnicos",v:900},{n:"Ferramentas e EPIs",v:600}]
 };
-const NUMS = ["base","baseRef","imp","meses","fRev","exc","setup","n1Pct","custo12","pAb","pCampo","alvo","risco","cH","hrs","km","rkm","outros","diasOp","diasTrab","pN2","margem"];
-const CHKS = ["inc1","inc2","n12Incl","inc3","useTeam"];
-const NIVEIS = {N1:"N1 — NOC", N2:"N2 — Suporte remoto", N3:"N3 — Campo", G:"Gestão / apoio"};
-const CRITS = {ch1:"Chamados/dia (N1)", ch2:"Chamados escalados/dia (N2)", os:"OS de campo/dia", sites:"Sites monitorados", uf:"Pessoas por estado", fixo:"Quantidade fixa"};
-const CAPLBL = {ch1:"Chamados/dia por pessoa", ch2:"Chamados/dia por pessoa", os:"OS/dia por pessoa", sites:"Sites por pessoa", uf:"Pessoas por estado", fixo:"—"};
+const NUMS = ["base","imp","meses","pAb","pCampo","alvo","risco","diasOp","diasTrab","margem","terc","km","rkm","outros"];
+const SELS = ["alvoTipo"];
+const CRITS = {os:"OS de campo/dia", uf:"Pessoas por estado", sites:"Sites da base", fixo:"Quantidade fixa"};
+const CAPLBL = {os:"OS/dia por pessoa", uf:"Pessoas por estado", sites:"Sites por pessoa", fixo:"—"};
+let mode = "os";
 let TEAM = DEF.team.map(t => ({...t}));
 let CF = DEF.cf.map(c => ({...c}));
-const SELS = ["alvoTipo","fxCrit","fxModo"];
-let mode = "os";
-let FX = DEF.faixas.map(f => ({...f}));
 
 const $ = id => document.getElementById(id);
 const v = id => { const x = parseFloat($(id).value); return isFinite(x) ? x : 0; };
@@ -408,9 +352,9 @@ const brl = x => isFinite(x) ? x.toLocaleString("pt-BR",{style:"currency",curren
 const n0 = x => isFinite(x) ? x.toLocaleString("pt-BR",{maximumFractionDigits:0}) : "–";
 const n1 = x => isFinite(x) ? x.toLocaleString("pt-BR",{maximumFractionDigits:1}) : "–";
 const pc = x => isFinite(x) ? (x*100).toLocaleString("pt-BR",{maximumFractionDigits:1})+"%" : "–";
-
-// UF chips
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---------- Estados ----------
 function renderUFs(checked){
   $("ufs").innerHTML = UFS.map(([uf,n],i) =>
     `<label class="uf"><span style="color:var(--ink)"><input type="checkbox" data-i="${i}" ${checked===undefined||checked.includes(uf)?"checked":""}> ${esc(uf)}</span><span>${n.toLocaleString("pt-BR")}</span></label>`
@@ -437,6 +381,7 @@ function parseQtd(x){
   else s = s.replace(",",".");
   return parseFloat(s);
 }
+function status(msg, cls){ const el = $("impStatus"); el.textContent = msg; el.className = "imp-status " + (cls||""); }
 function aplicarLinhas(linhas, origem){
   const mapa = new Map(); let ignoradas = 0;
   linhas.forEach(r => {
@@ -451,7 +396,6 @@ function aplicarLinhas(linhas, origem){
   const total = UFS.reduce((s,u)=>s+u[1],0);
   status(`${origem}: ${UFS.length} estados, ${total.toLocaleString("pt-BR")} sites${ignoradas?` · ${ignoradas} linha(s) ignorada(s) (cabeçalho ou sem número)`:""}.`, "ok");
 }
-function status(msg, cls){ const el = $("impStatus"); el.textContent = msg; el.className = "imp-status " + (cls||""); }
 function linhasDeTexto(txt){
   return txt.split(/\r?\n/).filter(l => l.trim()).map(l => {
     if (l.includes("\t")) return l.split("\t");
@@ -461,7 +405,7 @@ function linhasDeTexto(txt){
 }
 $("fileBase").addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
-  const nome = f.name; const ext = nome.split(".").pop().toLowerCase();
+  const nome = f.name, ext = nome.split(".").pop().toLowerCase();
   const rd = new FileReader();
   if (ext === "csv" || ext === "txt") {
     rd.onload = () => aplicarLinhas(linhasDeTexto(rd.result), nome);
@@ -493,55 +437,15 @@ $("btnModelo").addEventListener("click", () => {
   a.download = "modelo-base.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 
-// Mode toggle
-document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; calc(); }));
-
-// ---------- Faixas editáveis ----------
-function renderFX(){
-  $("fxBody").innerHTML = FX.map((f,i) => `<tr data-i="${i}">
-    <td><input class="nm" data-k="n" value="${esc(f.n)}"></td>
-    <td><input type="number" data-k="min" step="any" min="0" value="${f.min}"></td>
-    <td class="rng">–</td>
-    <td><input type="number" data-k="v" step="0.01" min="0" value="${f.v}"></td>
-    <td><button type="button" class="del" title="Remover faixa" ${FX.length<2?"disabled":""}>×</button></td>
-  </tr>`).join("");
-  $("fxBody").querySelectorAll("tr").forEach(tr => {
-    const i = +tr.dataset.i;
-    tr.querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => {
-      FX[i][inp.dataset.k] = inp.dataset.k === "n" ? inp.value : (parseFloat(inp.value) || 0); calc();
-    }));
-    tr.querySelector(".del").addEventListener("click", () => { FX.splice(i,1); renderFX(); calc(); });
-  });
-}
-$("fxAdd").addEventListener("click", () => {
-  const menor = FX.reduce((m,f) => Math.min(m, +f.min||0), Infinity);
-  const crit = $("fxCrit").value;
-  const min = isFinite(menor) ? Math.max(0, crit === "pct" ? menor - 10 : Math.round(menor*.8)) : (crit === "pct" ? 100 : v("baseRef"));
-  FX.push({n:`Faixa ${FX.length+1}`, min, v:0}); renderFX(); calc();
-  const ins = $("fxBody").querySelectorAll("tr:last-child input"); if (ins[2]) ins[2].focus();
-});
-$("fxReset").addEventListener("click", () => {
-  FX = DEF.faixas.map(f => ({...f})); $("fxCrit").value = "pct"; $("fxModo").value = "fechada";
-  $("fRev").value = DEF.fRev; $("exc").value = DEF.exc; renderFX(); calc();
-});
-$("fxCrit").addEventListener("change", () => {
-  // converte os limites existentes para o novo critério
-  const ref = Math.max(1, v("baseRef"));
-  FX.forEach(f => f.min = $("fxCrit").value === "qtd" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round((+f.min||0)/ref*1000)/10);
-  renderFX(); calc();
-});
-
 // ---------- Equipe ----------
 const opts = (obj, sel) => Object.entries(obj).map(([k,l]) => `<option value="${k}" ${k===sel?"selected":""}>${l}</option>`).join("");
 function renderTeam(){
   $("teamList").innerHTML = TEAM.map((t,i) => `<div class="cargo" data-i="${i}">
     <div class="cargo-top">
-      <span class="lvl">${t.nivel === "G" ? "Gestão" : t.nivel}</span>
       <input data-k="nome" value="${esc(t.nome)}" placeholder="Nome do cargo">
       <button type="button" class="del" title="Remover cargo">×</button>
     </div>
     <div class="grid">
-      <label class="f">Nível<select data-k="nivel">${opts(NIVEIS, t.nivel)}</select></label>
       <label class="f">Dimensionar por<select data-k="crit">${opts(CRITS, t.crit)}</select></label>
       <label class="f">${CAPLBL[t.crit]}<input type="number" data-k="cap" step="any" min="0" value="${t.cap}" ${t.crit==="fixo"?"disabled":""}></label>
       <label class="f">Carga horária (h/dia)<input type="number" data-k="carga" step="0.5" min="0" value="${t.carga}"></label>
@@ -558,7 +462,7 @@ function renderTeam(){
     const i = +card.dataset.i;
     card.querySelectorAll("[data-k]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
       const k = el.dataset.k;
-      TEAM[i][k] = (k === "nome" || k === "atrib" || k === "nivel" || k === "crit") ? el.value : (parseFloat(el.value) || 0);
+      TEAM[i][k] = (k === "nome" || k === "atrib" || k === "crit") ? el.value : (parseFloat(el.value) || 0);
       if (el.tagName === "SELECT") renderTeam();
       calc();
     }));
@@ -566,7 +470,7 @@ function renderTeam(){
   });
 }
 $("teamAdd").addEventListener("click", () => {
-  TEAM.push({nome:"Novo cargo", nivel:"N3", crit:"os", cap:3, carga:8, cob:0, min:1, sal:3000, enc:80, ben:900, atrib:""});
+  TEAM.push({nome:"Novo cargo", crit:"os", cap:3, carga:8, cob:0, min:1, sal:3000, enc:80, ben:900, atrib:""});
   renderTeam(); calc();
   const c = $("teamList").lastElementChild; c.scrollIntoView({behavior:"smooth", block:"center"}); c.querySelector("[data-k=nome]").select();
 });
@@ -585,26 +489,53 @@ function renderCF(){
 }
 $("cfAdd").addEventListener("click", () => { CF.push({n:"Novo gasto", v:0}); renderCF(); calc(); $("cfBody").querySelector("tr:last-child .nm").select(); });
 
+// Dimensiona a equipe para um volume de OS/mês
+function dimensionar(osMes, base, nEstados){
+  const diasOp = Math.max(1, v("diasOp")), diasTrab = Math.max(1, v("diasTrab"));
+  let pessoas = 0, custo = 0;
+  const linhas = TEAM.map(t => {
+    let q, det = [];
+    if (t.crit === "fixo") { q = Math.max(0, Math.round(t.min||0)); det.push("quantidade fixa"); }
+    else {
+      let qVol = 0, qCob = 0;
+      if (t.crit === "uf") { qVol = Math.ceil(nEstados*(t.cap||0) - 1e-9); det.push(`${nEstados} estados × ${n1(t.cap)} ⇒ ${qVol}`); }
+      else if (t.crit === "sites") { if (t.cap > 0) { qVol = Math.ceil(base/t.cap - 1e-9); det.push(`${n0(base)} sites ÷ ${n0(t.cap)} ⇒ ${qVol}`); } }
+      else if (t.cap > 0) { qVol = Math.ceil(osMes/(t.cap*diasTrab) - 1e-9); det.push(`${n1(osMes/diasOp)} OS/dia ÷ ${n1(t.cap)} ⇒ ${qVol}`); }
+      if (t.cob > 0 && t.carga > 0) { qCob = Math.ceil(t.cob*diasOp/(t.carga*diasTrab) - 1e-9); det.push(`cobertura ${n1(t.cob)}h/dia ⇒ ${qCob}`); }
+      if (t.min > 0) det.push(`mínimo ${n0(t.min)}`);
+      q = Math.max(qVol, qCob, Math.round(t.min||0));
+      if (q > 0 && (t.crit === "uf" || t.crit === "os") && t.cap > 0 && t.crit === "os") det.push(`ocupação ${pc(osMes/(q*t.cap*diasTrab))}`);
+      if (q > 0 && t.crit === "uf") det.push(`≈ ${n1(osMes/q)} OS/mês por pessoa`);
+    }
+    const unit = (t.sal||0)*(1+(t.enc||0)/100) + (t.ben||0);
+    pessoas += q; custo += q*unit;
+    return {q, unit, tot:q*unit, det};
+  });
+  return {pessoas, custo, linhas};
+}
+
+// ---------- Modo ----------
+document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; calc(); }));
+
 function load(st){
   NUMS.forEach(k => $(k).value = st[k]);
-  CHKS.forEach(k => $(k).checked = !!st[k]);
   SELS.forEach(k => $(k).value = st[k]);
-  mode = st.mode;
+  mode = st.mode === "base" ? "base" : "os";
   if (Array.isArray(st.ufData) && st.ufData.length) UFS = st.ufData.map(u => [String(u[0]), +u[1]||0]);
   renderUFs(st.ufs || []);
-  FX = (Array.isArray(st.faixas) && st.faixas.length ? st.faixas : DEF.faixas).map(f => ({n:String(f.n??""), min:+f.min||0, v:+f.v||0}));
-  renderFX();
-  TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t}));
+  TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t, crit: CRITS[t.crit] ? t.crit : "os"}));
   CF = (Array.isArray(st.cf) ? st.cf : DEF.cf).map(c => ({n:String(c.n??""), v:+c.v||0}));
   renderTeam(); renderCF();
 }
 function state(){
-  const st = {}; NUMS.forEach(k => st[k] = v(k)); CHKS.forEach(k => st[k] = $(k).checked);
-  SELS.forEach(k => st[k] = $(k).value); st.mode = mode; st.faixas = FX; st.team = TEAM; st.cf = CF;
+  const st = {}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
+  st.mode = mode;
   st.ufs = [...$("ufs").querySelectorAll("[data-i]")].filter(c=>c.checked).map(c=>UFS[+c.dataset.i][0]);
-  st.ufData = UFS;
+  st.ufData = UFS; st.team = TEAM; st.cf = CF;
   return st;
 }
+
+let ultimoSug = {liqOS:0, brutoOS:0};
 
 function calc(){
   document.querySelectorAll(".seg button").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
@@ -612,213 +543,120 @@ function calc(){
 
   const imp = Math.min(Math.max(v("imp"),0),99)/100;
   const base = Math.max(0, Math.round(v("base")));
-  const ref = Math.max(1, v("baseRef"));
   const meses = Math.max(1, v("meses"));
+  const diasOp = Math.max(1, v("diasOp"));
+  const nEstados = [...$("ufs").querySelectorAll("[data-i]")].filter(c => c.checked && UFS[+c.dataset.i][1] > 0).length;
 
-  // ---------- N1 + N2 ----------
-  const pct = base/ref;
-  const crit = $("fxCrit").value, modoFx = $("fxModo").value;
-  const fRev = v("fRev"), exc = v("exc");
-  $("fxColMin").textContent = crit === "pct" ? "A partir de (% da base)" : "A partir de (sites)";
-  // limite em sites de cada faixa, da maior para a menor
-  const tiers = FX.map((f,i) => ({i, n:f.n||`Faixa ${i+1}`, v:+f.v||0,
-      thr: Math.max(0, crit === "pct" ? Math.ceil(ref*(+f.min||0)/100 - 1e-9) : Math.round(+f.min||0))}))
-    .sort((a,b) => b.thr - a.thr);
-  const ativas = new Set();
-  let faixa, rec12, extra = "";
-  if (modoFx === "fechada") {
-    const t = tiers.find(t => base >= t.thr);
-    if (t) {
-      faixa = t.n; ativas.add(t.i);
-      if (exc > 0 && base > ref) {
-        rec12 = ref*t.v + (base-ref)*exc;
-        extra = ` ${n0(base-ref)} sites acima da referência cobrados a ${brl(exc)}.`;
-      } else rec12 = base*t.v;
-      extra = ` Todos os ${n0(base)} sites a ${brl(t.v)}.` + extra;
-    } else {
-      faixa = "Abaixo da menor faixa"; rec12 = base*fRev;
-      extra = ` <span class="warn">Base abaixo da menor faixa — usado o valor de “Abaixo da menor faixa” (${brl(fRev)}).</span>`;
-    }
-  } else {
-    // progressiva: cada faixa cobra os sites entre seu limite e o limite da próxima
-    const asc = tiers.slice().reverse(); const partes = []; rec12 = 0;
-    const abaixo = Math.min(base, asc.length ? asc[0].thr : base);
-    if (abaixo > 0) { rec12 += abaixo*fRev; partes.push(`${n0(abaixo)} × ${brl(fRev)} (abaixo da menor faixa)`); }
-    asc.forEach((t,k) => {
-      const fim = k+1 < asc.length ? asc[k+1].thr : Infinity;
-      const q = Math.max(0, Math.min(base, fim) - t.thr);
-      if (q > 0) { rec12 += q*t.v; ativas.add(t.i); partes.push(`${n0(q)} × ${brl(t.v)} (${esc(t.n)})`); }
-    });
-    faixa = ativas.size ? `${ativas.size} faixa(s)` : "Abaixo da menor faixa";
-    extra = partes.length ? ` Composição: ${partes.join(" + ")}.` : "";
-  }
-  // intervalos e destaque na tabela
-  $("fxBody").querySelectorAll("tr").forEach(tr => {
-    const i = +tr.dataset.i, t = tiers.find(x => x.i === i), k = tiers.indexOf(t);
-    const sup = k > 0 ? tiers[k-1].thr - 1 : null;
-    tr.querySelector(".rng").textContent = sup === null ? `${n0(t.thr)} ou mais` : (sup < t.thr ? "sobreposta" : `${n0(t.thr)} a ${n0(sup)}`);
-    tr.classList.toggle("ativa", ativas.has(i));
-  });
-  const vsite12 = base ? rec12/base : 0;
-  const bruto12full = $("n12Incl").checked ? rec12 : rec12/(1-imp);
-  const sN1 = Math.min(Math.max(v("n1Pct"),0),100)/100;
-  const inc1 = $("inc1").checked, inc2 = $("inc2").checked;
-  const bN1 = inc1 ? bruto12full*sN1 : 0;
-  const bN2 = inc2 ? bruto12full*(1-sN1) : 0;
-  const b12 = bN1 + bN2;
-  const setupB = (inc1||inc2) ? ($("n12Incl").checked ? v("setup") : v("setup")/(1-imp)) : 0;
-  const custo12 = (inc1||inc2) ? v("custo12") : 0;
-
-  $("o_pct").textContent = pc(pct);
-  $("o_faixa").textContent = faixa;
-  $("o_vsite").textContent = brl(base ? bruto12full/base : 0);
-  $("o_m12").textContent = brl(b12);
-  $("n12note").innerHTML = `<b>${modoFx === "fechada" ? "Faixa fechada" : "Progressiva"}</b> · faixa aplicada: <b>${esc(faixa)}</b>${$("n12Incl").checked ? "" : " (com acréscimo do imposto)"}.${extra}`;
-
-  // ---------- N3 ----------
+  // ---------- Volume e preço ----------
   const pAb = v("pAb")/100, pCampo = v("pCampo")/100;
   const chamados = base*pAb;
   const os = chamados*pCampo;
   const alvo = v("alvo");
   const brutoOS = $("alvoTipo").value === "liq" ? alvo/(1-imp) : alvo;
   const liqOS = brutoOS*(1-imp);
-  const custoOS = v("cH")*v("hrs") + v("km")*v("rkm") + v("outros");
-  const lucroOS = liqOS - custoOS;
   const risco = v("risco")/100;
   const vSiteBase = base ? os*brutoOS*(1+risco)/base : 0;
-  const recBaseBruta = vSiteBase*base;
-
-  const inc3 = $("inc3").checked;
-  let bN3, vSiteN3;
-  if (mode === "os") { bN3 = os*brutoOS; vSiteN3 = base ? bN3/base : 0; }
-  else { bN3 = recBaseBruta; vSiteN3 = vSiteBase; }
-  if (!inc3) bN3 = 0;
-  const custoCampo = inc3 ? os*custoOS : 0;
+  const recBase = vSiteBase*base;
+  const fat = mode === "os" ? os*brutoOS : recBase;
+  const vSite = base ? fat/base : 0;
 
   $("o_ch").textContent = n1(chamados);
   $("o_os").textContent = n1(os);
+  $("o_osd").textContent = n1(os/diasOp);
   $("o_bos").textContent = brl(brutoOS);
   $("o_los").textContent = brl(liqOS);
-  $("o_cos").textContent = brl(custoOS);
-  $("o_lucos").textContent = brl(lucroOS);
-  $("o_lucos").style.color = lucroOS < 0 ? "var(--bad)" : "var(--ok)";
-  $("o_n3site").textContent = brl(vSiteN3);
-  $("o_mn3").textContent = brl(inc3 ? (mode==="os"? os*brutoOS : recBaseBruta) : 0);
-
-  const beOS = custoOS > 0 ? (recBaseBruta*(1-imp))/custoOS : Infinity;
-  const beAb = base*pCampo > 0 ? beOS/(base*pCampo) : Infinity;
+  $("o_site").textContent = brl(vSite);
+  $("o_fat").textContent = brl(fat);
   $("n3note").innerHTML = mode === "os"
-    ? `<b>Por OS:</b> você fatura ${brl(brutoOS)} por OS executada e recebe ${brl(liqOS)} líquido. A receita acompanha o volume real — sem risco de volume, mas sem previsibilidade para o cliente. Equivale a ${brl(vSiteN3)} por site/mês na abertura prevista.`
-    : `<b>Sobre a base:</b> ${brl(vSiteBase)} por site/mês × ${n0(base)} sites = ${brl(recBaseBruta)} fixos por mês (já com ${n0(risco*100)}% de margem de risco). Cobre o custo das visitas até <b>${n1(beOS)} OS/mês</b> (abertura de ${pc(beAb)} da base com ${n0(pCampo*100)}% indo a campo).`;
+    ? `<b>Por OS:</b> você fatura ${brl(brutoOS)} por OS executada e recebe ${brl(liqOS)} líquido. A receita acompanha o volume real — sem risco de volume para você, mas sem previsibilidade de custo para o cliente.`
+    : `<b>Valor fixo sobre a base:</b> ${brl(vSiteBase)} por site/mês × ${n0(base)} sites = ${brl(recBase)} por mês, independente de quantas OS acontecerem (já com ${n0(risco*100)}% de margem de risco).`;
 
-  // ---------- Equipe ----------
-  const useTeam = $("useTeam").checked;
-  const diasOp = Math.max(1, v("diasOp")), diasTrab = Math.max(1, v("diasTrab"));
-  const ch2 = chamados*v("pN2")/100;
-  const nEstados = [...$("ufs").querySelectorAll("[data-i]")].filter(c => c.checked && UFS[+c.dataset.i][1] > 0).length;
-  const vol = {ch1:chamados/diasOp, ch2:ch2/diasOp, os:os/diasOp, sites:base, uf:nEstados};
-  const fat = diasOp/diasTrab; // cada pessoa trabalha só parte dos dias de operação
-  $("volBox").innerHTML = `
-    <div><small>Chamados N1 / dia</small><strong>${n1(vol.ch1)}</strong></div>
-    <div><small>Escalados N2 / dia</small><strong>${n1(vol.ch2)}</strong></div>
-    <div><small>OS de campo / dia</small><strong>${n1(vol.os)}</strong></div>
-    <div><small>Sites · estados</small><strong>${n0(base)} · ${nEstados}</strong></div>`;
-  const lv = {N1:{p:0,c:0}, N2:{p:0,c:0}, N3:{p:0,c:0}, G:{p:0,c:0}};
+  // ---------- Equipe e custos ----------
+  const D = dimensionar(os, base, nEstados);
   const cards = $("teamList").querySelectorAll(".cargo");
-  TEAM.forEach((t,i) => {
-    let q, det = [];
-    if (t.crit === "fixo") { q = Math.max(0, Math.round(t.min||0)); det.push("quantidade fixa"); }
-    else {
-      let qVol = 0, qCob = 0;
-      if (t.crit === "uf") { qVol = Math.ceil(nEstados*(t.cap||0) - 1e-9); det.push(`${nEstados} estados × ${n1(t.cap)} ⇒ ${qVol}`); }
-      else if (t.crit === "sites") { if (t.cap > 0) { qVol = Math.ceil(base/t.cap - 1e-9); det.push(`${n0(base)} sites ÷ ${n0(t.cap)} ⇒ ${qVol}`); } }
-      else if (t.cap > 0) { qVol = Math.ceil(vol[t.crit]/t.cap*fat - 1e-9); det.push(`demanda ${n1(vol[t.crit])}/dia ÷ ${n1(t.cap)} ⇒ ${qVol}`); }
-      if (t.cob > 0 && t.carga > 0) { qCob = Math.ceil(t.cob*diasOp/(t.carga*diasTrab) - 1e-9); det.push(`cobertura ${n1(t.cob)}h/dia ⇒ ${qCob}`); }
-      if (t.min > 0) det.push(`mínimo ${n0(t.min)}`);
-      q = Math.max(qVol, qCob, Math.round(t.min||0));
-      if (["ch1","ch2","os"].includes(t.crit) && q > 0 && t.cap > 0) det.push(`ocupação ${pc(vol[t.crit]*fat/(q*t.cap))}`);
-    }
-    const unit = (t.sal||0)*(1+(t.enc||0)/100) + (t.ben||0);
-    const tot = q*unit;
-    const L = lv[t.nivel] || lv.G; L.p += q; L.c += tot;
+  D.linhas.forEach((l,i) => {
     if (cards[i]) cards[i].querySelector(".cargo-res").innerHTML =
-      `<b>${q} ${q===1?"pessoa":"pessoas"}</b><b>${brl(tot)}/mês</b><span>${brl(unit)} por pessoa (salário + encargos + benefícios) · ${det.join(" · ")}</span>`;
+      `<b>${l.q} ${l.q===1?"pessoa":"pessoas"}</b><b>${brl(l.tot)}/mês</b><span>${brl(l.unit)} por pessoa (salário + encargos + benefícios) · ${l.det.join(" · ")}</span>`;
   });
   const cfTot = CF.reduce((s,c) => s + (+c.v||0), 0);
   $("cfTotal").textContent = brl(cfTot);
-  const estrutura = cfTot + lv.G.c;
-  const opP = lv.N1.p + lv.N2.p + lv.N3.p;
-  const varN3 = lv.N3.p > 0 ? os*(v("km")*v("rkm") + v("outros")) : 0;
+  const varU = v("terc") + v("km")*v("rkm") + v("outros");
+  const varTot = os*varU;
+  const custoTot = D.custo + cfTot + varTot;
+  const custoOS = os > 0 ? custoTot/os : NaN;
   const margem = Math.min(Math.max(v("margem"),0),95)/100;
-  const minP = c => c/(1-imp), sugP = c => c/((1-imp)*(1-margem));
-  const linhas = [];
-  let totC = 0, totPes = 0;
-  ["N1","N2","N3"].forEach(k => {
-    if (lv[k].p === 0 && k === "N3") return;
-    const rat = opP ? estrutura*lv[k].p/opP : (k === "N1" ? estrutura : 0);
-    const c = lv[k].c + rat + (k === "N3" ? varN3 : 0);
-    totC += c; totPes += lv[k].p;
-    linhas.push(`<tr><td>${NIVEIS[k]}</td><td>${lv[k].p}</td><td>${brl(lv[k].c + (k==="N3"?varN3:0))}</td><td>${brl(rat)}</td><td>${brl(c)}</td><td>${brl(base?c/base:0)}</td><td>${brl(base?minP(c)/base:0)}</td><td>${brl(base?sugP(c)/base:0)}</td></tr>`);
-    lv[k].tot = c;
-  });
-  linhas.push(`<tr class="tot"><td>Total (${lv.G.p} em gestão/apoio rateados)</td><td>${totPes + lv.G.p}</td><td>${brl(lv.N1.c+lv.N2.c+lv.N3.c+lv.G.c+varN3)}</td><td>${brl(cfTot)} fixos</td><td>${brl(totC)}</td><td>${brl(base?totC/base:0)}</td><td>${brl(base?minP(totC)/base:0)}</td><td>${brl(base?sugP(totC)/base:0)}</td></tr>`);
-  $("teamRes").innerHTML = linhas.join("");
-  const c12 = (lv.N1.tot||0) + (lv.N2.tot||0);
-  const preco12 = base ? bruto12full/base : 0, min12 = base ? minP(c12)/base : 0;
-  let tn = `<b>N1 + N2:</b> custo de ${brl(c12)}/mês. Para empatar, precisa cobrar <b>${brl(min12)}</b> por site; com ${n0(margem*100)}% de margem, <b>${brl(base?sugP(c12)/base:0)}</b>. Preço atual das faixas: <b>${brl(preco12)}</b> por site `;
-  tn += preco12 >= min12 ? `<span class="badge ok">cobre o custo</span>` : `<span class="badge bad">abaixo do custo</span>`;
-  if (lv.N3.p > 0 && os > 0) tn += `<br><b>N3 com equipe própria:</b> ${brl(lv.N3.tot)}/mês ÷ ${n1(os)} OS = <b>${brl(lv.N3.tot/os)}</b> de custo por OS · preço mínimo ${brl(minP(lv.N3.tot)/os)} · sugerido ${brl(sugP(lv.N3.tot)/os)} por OS.`;
-  else tn += `<br><b>N3:</b> sem técnicos próprios na equipe — o campo usa o custo variável por OS da seção 3 (${brl(custoOS)}). Para técnicos próprios, adicione um cargo de nível N3 (ex.: “Pessoas por estado”).`;
-  $("teamNote").innerHTML = tn;
-  $("custo12").disabled = useTeam;
+  const minF = c => c/(1-imp), sugF = c => c/((1-imp)*(1-margem));
+
+  $("r_pes").textContent = brl(D.custo);
+  $("r_cf").textContent = brl(cfTot);
+  $("r_var").textContent = `${brl(varTot)}`;
+  $("r_tot").textContent = brl(custoTot);
+  $("r_cos").textContent = brl(custoOS);
+  $("r_csite").textContent = brl(base ? custoTot/base : 0);
+
+  $("p_minOS").textContent = brl(minF(custoOS));
+  $("p_minSite").textContent = brl(base ? minF(custoTot)/base : 0);
+  $("p_minMes").textContent = brl(minF(custoTot));
+  $("p_sugLbl").textContent = `Preço sugerido (margem ${n0(margem*100)}%)`;
+  $("p_sugOS").textContent = brl(sugF(custoOS));
+  $("p_sugSite").textContent = brl(base ? sugF(custoTot)/base : 0);
+  $("p_sugMes").textContent = brl(sugF(custoTot));
+  $("p_atuOS").textContent = brl(os ? fat/os : brutoOS);
+  $("p_atuSite").textContent = brl(vSite);
+  $("p_atuMes").textContent = brl(fat);
+  ultimoSug = {brutoOS: sugF(custoOS), liqOS: sugF(custoOS)*(1-imp)};
+  const cobre = fat >= minF(custoTot) - 0.005;
+  $("p_status").innerHTML = os > 0 ? (cobre ? `<span class="badge ok">Seu preço cobre o custo</span>` : `<span class="badge bad">Seu preço está abaixo do custo</span>`) : "";
+  $("refNote").innerHTML = os > 0
+    ? `A equipe tem <b>${D.pessoas} pessoas</b> para ${n1(os)} OS/mês em ${nEstados} estado(s). O custo fixo (pessoal + estrutura) de ${brl(D.custo + cfTot)} é ${pc((D.custo+cfTot)/custoTot)} do total — quanto menor o volume de OS, maior o custo de cada uma. ` +
+      (D.pessoas > 0 && os/Math.max(1,D.pessoas) < 10 ? `<span class="warn">Volume baixo por pessoa (${n1(os/D.pessoas)} OS/mês): considere terceirizar parte dos estados (campo “Pagamento a terceiro por OS”).</span>` : "")
+    : `Sem OS previstas — ajuste a base, o % de abertura ou o % de campo.`;
 
   // ---------- Sensibilidade ----------
   const mults = [0.25,0.5,0.75,1,1.25,1.5,2,3];
-  const recLiqBase = recBaseBruta*(1-imp);
+  const liqBase = recBase*(1-imp);
   $("sens").innerHTML = mults.map(m => {
     const osR = os*m;
-    const liqPorOS = osR*liqOS, resOS = liqPorOS - osR*custoOS;
-    const liqB_os = osR ? recLiqBase/osR : NaN, resB = recLiqBase - osR*custoOS;
+    const Dr = dimensionar(osR, base, nEstados);
+    const cR = Dr.custo + cfTot + osR*varU;
+    const lOS = osR*liqOS, rOS = lOS - cR, rB = liqBase - cR;
     return `<tr class="${m===1?"hl":""}">
       <td>${(pAb*m*100).toLocaleString("pt-BR",{maximumFractionDigits:2})}%${m===1?" (previsto)":""}</td>
-      <td>${n1(osR)}</td>
-      <td>${brl(liqPorOS)}</td><td class="${resOS<0?"neg":"pos"}">${brl(resOS)}</td>
-      <td>${brl(recLiqBase)}</td><td>${osR?brl(liqB_os):"–"}</td><td class="${resB<0?"neg":"pos"}">${brl(resB)}</td>
+      <td>${n1(osR)}</td><td>${Dr.pessoas}</td><td>${brl(cR)}</td>
+      <td>${brl(lOS)}</td><td class="${rOS<0?"neg":"pos"}">${brl(rOS)}</td>
+      <td>${brl(liqBase)}</td><td class="${rB<0?"neg":"pos"}">${brl(rB)}</td>
     </tr>`;
   }).join("");
-  $("sensnote").innerHTML = `No modelo <b>por OS</b> o resultado escala com o volume (lucro de ${brl(lucroOS)} por visita). No modelo <b>sobre a base</b> a receita é fixa: ganha mais quando o volume cai e entra no prejuízo acima de ${n1(beOS)} OS/mês.`;
+  $("sensnote").innerHTML = `No modelo <b>por OS</b> a receita sobe e desce com o volume, mas o custo fixo da equipe continua — volume baixo pode dar prejuízo. No modelo <b>sobre a base</b> a receita é fixa: ganha quando o volume cai e perde quando o volume sobe acima do previsto.`;
 
   // ---------- Resumo ----------
-  const bruto = b12 + bN3;
-  const impostos = bruto*imp;
-  const liq = bruto - impostos;
-  const custoEq = useTeam ? (lv.N1.c + lv.N2.c + lv.N3.c + lv.G.c + cfTot) : custo12;
-  const custoCampoR = !inc3 ? 0 : (useTeam && lv.N3.p > 0 ? varN3 : custoCampo);
-  const res = liq - custoCampoR - custoEq;
-  $("s_c12Lbl").textContent = useTeam ? "(−) Equipe e estrutura" : "(−) Custo N1/N2";
-  $("s_ccampoLbl").textContent = useTeam && lv.N3.p > 0 ? "(−) Campo (deslocamento)" : "(−) Custo campo";
-  $("s_n1").textContent = brl(bN1);
-  $("s_n2").textContent = brl(bN2);
-  $("s_n3").textContent = brl(bN3) + (inc3 ? (mode==="os" ? " · por OS" : " · fixo") : "");
-  $("s_bruto").textContent = brl(bruto);
+  const impostos = fat*imp, liq = fat - impostos;
+  const res = liq - D.custo - cfTot - varTot;
+  $("s_modo").textContent = mode === "os" ? "Por OS" : "Fixo sobre a base";
+  $("s_bruto").textContent = brl(fat);
   $("s_imp").textContent = brl(-impostos);
   $("s_liq").textContent = brl(liq);
-  $("s_ccampo").textContent = brl(-custoCampoR);
-  $("s_c12").textContent = brl(-custoEq);
+  $("s_pes").textContent = brl(-D.custo);
+  $("s_cf").textContent = brl(-cfTot);
+  $("s_var").textContent = brl(-varTot);
   $("s_res").textContent = brl(res);
   $("s_res").style.color = res < 0 ? "var(--bad)" : "var(--ok)";
   const mg = liq ? res/liq : 0;
   $("s_badge").innerHTML = res < 0 ? `<span class="badge bad">Prejuízo</span>` :
     `<span class="badge ${mg<.15?"warn":"ok"}">Margem ${pc(mg)} sobre a receita líquida</span>`;
-  $("s_site").textContent = brl(base ? bruto/base : 0);
-  $("s_setup").textContent = brl(setupB);
-  $("s_ctlbl").textContent = `Contrato ${meses} meses + setup (bruto)`;
-  $("s_ct").textContent = brl(bruto*meses + setupB);
-  $("s_ctres").textContent = brl(res*meses + setupB*(1-imp));
+  $("s_pessoas").textContent = D.pessoas;
+  $("s_resOS").textContent = brl(os ? res/os : NaN);
+  $("s_ctlbl").textContent = `Contrato ${meses} meses (bruto)`;
+  $("s_ct").textContent = brl(fat*meses);
+  $("s_ctres").textContent = brl(res*meses);
 
   try { history.replaceState(null,"","#"+encodeURIComponent(JSON.stringify(state()))); } catch(e){}
 }
 
+$("btnUsarSug").addEventListener("click", () => {
+  const val = $("alvoTipo").value === "liq" ? ultimoSug.liqOS : ultimoSug.brutoOS;
+  if (isFinite(val)) { $("alvo").value = Math.ceil(val*100)/100; calc(); }
+});
 document.querySelectorAll("input,select").forEach(el => el.addEventListener("input", calc));
 document.querySelectorAll("select").forEach(el => el.addEventListener("change", calc));
 $("btnReset").addEventListener("click", () => { load(DEF); calc(); });
