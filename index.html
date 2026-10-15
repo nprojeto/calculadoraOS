@@ -149,12 +149,8 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
 
   <!-- 2. VOLUME E PREÇO -->
   <div class="card">
-    <h2>2. Volume e forma de cobrança</h2>
-    <p class="sub">Escolha como cobrar: por ordem de serviço executada ou valor fixo diluído em toda a base monitorada.</p>
-    <div class="seg" role="tablist">
-      <button type="button" data-mode="os">Cobrar por ordem de serviço</button>
-      <button type="button" data-mode="base">Valor fixo sobre a base</button>
-    </div>
+    <h2>2. Volume e preço por OS</h2>
+    <p class="sub">Volume previsto de OS de campo e o valor que você quer receber por OS. O equivalente por site/mês aparece logo abaixo.</p>
 
     <div class="grid">
       <label class="f">% de abertura de chamados de campo (mês)
@@ -254,14 +250,13 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
   <!-- 5. SENSIBILIDADE -->
   <div class="card">
     <h2>5. E se o volume de chamados variar?</h2>
-    <p class="sub">Resultado mensal nos dois modelos quando a abertura real fica diferente da prevista. A equipe é redimensionada para cada volume.</p>
+    <p class="sub">Resultado mensal quando a abertura real fica diferente da prevista. A equipe é redimensionada para cada volume.</p>
     <div class="tablewrap">
       <table>
         <thead>
           <tr>
             <th>% abertura</th><th>OS/mês</th><th>Pessoas</th><th>Custo total</th>
-            <th>Por OS: líquido</th><th>Por OS: resultado</th>
-            <th>Base: líquido</th><th>Base: resultado</th>
+            <th>Receita líquida</th><th>Custo por OS</th><th>Resultado</th>
           </tr>
         </thead>
         <tbody id="sens"></tbody>
@@ -277,7 +272,6 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
   <div class="sticky">
     <div class="card sum">
       <h2>Resumo mensal</h2>
-      <div class="line"><span>Modelo</span><span id="s_modo">–</span></div>
       <div class="line total"><span>Faturamento bruto</span><span id="s_bruto">–</span></div>
       <div class="line"><span>(−) Impostos</span><span id="s_imp">–</span></div>
       <div class="line"><span>Receita líquida</span><span id="s_liq">–</span></div>
@@ -300,7 +294,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:0 16px 30px}
       Bruto = líquido ÷ (1 − imposto).<br>
       Custo total = pessoal + gastos fixos + OS × custo variável.<br>
       Preço sugerido = custo ÷ (1 − imposto) ÷ (1 − margem).<br>
-      Valor fixo sobre a base = OS previstas × bruto por OS ÷ base. A receita fica fixa e o risco de volume fica com você.
+      Equivalente por site = faturamento mensal ÷ base.
     </div>
   </div>
 </aside>
@@ -317,7 +311,7 @@ const UFS_PROPOSTA = [
 let UFS = UFS_PROPOSTA.map(u => u.slice());
 const DEF = {
   base:4399, imp:16.33, meses:24,
-  mode:"os", pAb:5, alvo:250, alvoTipo:"liq",
+  pAb:5, alvo:250, alvoTipo:"liq",
   diasOp:22, diasTrab:22, margem:20,
   terc:0, km:40, rkm:1.5, outros:20,
   ufs:UFS_PROPOSTA.map(u=>u[0]), ufData:UFS_PROPOSTA,
@@ -333,7 +327,6 @@ const NUMS = ["base","imp","meses","pAb","alvo","diasOp","diasTrab","margem","te
 const SELS = ["alvoTipo"];
 const CRITS = {os:"OS de campo/dia", uf:"Pessoas por estado", sites:"Sites da base", fixo:"Quantidade fixa"};
 const CAPLBL = {os:"OS/dia por pessoa", uf:"Pessoas por estado", sites:"Sites por pessoa", fixo:"—"};
-let mode = "os";
 let TEAM = DEF.team.map(t => ({...t}));
 let CF = DEF.cf.map(c => ({...c}));
 
@@ -506,12 +499,11 @@ function dimensionar(osMes, base, nEstados){
 }
 
 // ---------- Modo ----------
-document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; calc(); }));
+
 
 function load(st){
   NUMS.forEach(k => $(k).value = st[k]);
   SELS.forEach(k => $(k).value = st[k]);
-  mode = st.mode === "base" ? "base" : "os";
   if (Array.isArray(st.ufData) && st.ufData.length) UFS = st.ufData.map(u => [String(u[0]), +u[1]||0]);
   renderUFs(st.ufs || []);
   TEAM = (Array.isArray(st.team) ? st.team : DEF.team).map(t => ({...DEF.team[0], ...t, crit: CRITS[t.crit] ? t.crit : "os"}));
@@ -520,7 +512,6 @@ function load(st){
 }
 function state(){
   const st = {}; NUMS.forEach(k => st[k] = v(k)); SELS.forEach(k => st[k] = $(k).value);
-  st.mode = mode;
   st.ufs = [...$("ufs").querySelectorAll("[data-i]")].filter(c=>c.checked).map(c=>UFS[+c.dataset.i][0]);
   st.ufData = UFS; st.team = TEAM; st.cf = CF;
   return st;
@@ -529,7 +520,6 @@ function state(){
 let ultimoSug = {liqOS:0, brutoOS:0};
 
 function calc(){
-  document.querySelectorAll(".seg button").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
 
   const imp = Math.min(Math.max(v("imp"),0),99)/100;
   const base = Math.max(0, Math.round(v("base")));
@@ -543,9 +533,7 @@ function calc(){
   const alvo = v("alvo");
   const brutoOS = $("alvoTipo").value === "liq" ? alvo/(1-imp) : alvo;
   const liqOS = brutoOS*(1-imp);
-  const vSiteBase = base ? os*brutoOS/base : 0;
-  const recBase = vSiteBase*base;
-  const fat = mode === "os" ? os*brutoOS : recBase;
+  const fat = os*brutoOS;
   const vSite = base ? fat/base : 0;
 
   $("o_os").textContent = n1(os);
@@ -554,9 +542,7 @@ function calc(){
   $("o_los").textContent = brl(liqOS);
   $("o_site").textContent = brl(vSite);
   $("o_fat").textContent = brl(fat);
-  $("n3note").innerHTML = mode === "os"
-    ? `<b>Por OS:</b> você fatura ${brl(brutoOS)} por OS executada e recebe ${brl(liqOS)} líquido. A receita acompanha o volume real — sem risco de volume para você, mas sem previsibilidade de custo para o cliente.`
-    : `<b>Valor fixo sobre a base:</b> ${brl(vSiteBase)} por site/mês × ${n0(base)} sites = ${brl(recBase)} por mês, independente de quantas OS acontecerem.`;
+  $("n3note").innerHTML = `${n1(os)} OS/mês × ${brl(brutoOS)} = <b>${brl(fat)}</b> por mês (${brl(liqOS)} líquido por OS). Diluído na base, equivale a <b>${brl(vSite)}</b> por site/mês.`;
 
   // ---------- Equipe e custos ----------
   const D = dimensionar(os, base, nEstados);
@@ -597,29 +583,26 @@ function calc(){
   $("refNote").innerHTML = os > 0
     ? `A equipe tem <b>${D.pessoas} pessoas</b> para ${n1(os)} OS/mês em ${nEstados} estado(s). O custo fixo (pessoal + estrutura) de ${brl(D.custo + cfTot)} é ${pc((D.custo+cfTot)/custoTot)} do total — quanto menor o volume de OS, maior o custo de cada uma. ` +
       (D.pessoas > 0 && os/Math.max(1,D.pessoas) < 10 ? `<span class="warn">Volume baixo por pessoa (${n1(os/D.pessoas)} OS/mês): considere terceirizar parte dos estados (campo “Pagamento a terceiro por OS”).</span>` : "")
-    : `Sem OS previstas — ajuste a base, o % de abertura ou o % de campo.`;
+    : `Sem OS previstas — ajuste a base ou o % de abertura.`;
 
   // ---------- Sensibilidade ----------
   const mults = [0.25,0.5,0.75,1,1.25,1.5,2,3];
-  const liqBase = recBase*(1-imp);
   $("sens").innerHTML = mults.map(m => {
     const osR = os*m;
     const Dr = dimensionar(osR, base, nEstados);
     const cR = Dr.custo + cfTot + osR*varU;
-    const lOS = osR*liqOS, rOS = lOS - cR, rB = liqBase - cR;
+    const lOS = osR*liqOS, rOS = lOS - cR;
     return `<tr class="${m===1?"hl":""}">
       <td>${(pAb*m*100).toLocaleString("pt-BR",{maximumFractionDigits:2})}%${m===1?" (previsto)":""}</td>
       <td>${n1(osR)}</td><td>${Dr.pessoas}</td><td>${brl(cR)}</td>
-      <td>${brl(lOS)}</td><td class="${rOS<0?"neg":"pos"}">${brl(rOS)}</td>
-      <td>${brl(liqBase)}</td><td class="${rB<0?"neg":"pos"}">${brl(rB)}</td>
+      <td>${brl(lOS)}</td><td>${osR?brl(cR/osR):"–"}</td><td class="${rOS<0?"neg":"pos"}">${brl(rOS)}</td>
     </tr>`;
   }).join("");
-  $("sensnote").innerHTML = `No modelo <b>por OS</b> a receita sobe e desce com o volume, mas o custo fixo da equipe continua — volume baixo pode dar prejuízo. No modelo <b>sobre a base</b> a receita é fixa: ganha quando o volume cai e perde quando o volume sobe acima do previsto.`;
+  $("sensnote").innerHTML = `A receita acompanha o volume de OS, mas o custo da equipe e da estrutura continua — com volume baixo, cada OS fica mais cara e o resultado pode virar prejuízo.`;
 
   // ---------- Resumo ----------
   const impostos = fat*imp, liq = fat - impostos;
   const res = liq - D.custo - cfTot - varTot;
-  $("s_modo").textContent = mode === "os" ? "Por OS" : "Fixo sobre a base";
   $("s_bruto").textContent = brl(fat);
   $("s_imp").textContent = brl(-impostos);
   $("s_liq").textContent = brl(liq);
